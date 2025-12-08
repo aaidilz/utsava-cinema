@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('movie_title');
             $table->string('poster_path')->nullable();
             $table->timestamps();
+            
+            $table->unique(['user_id', 'external_movie_id']);
         });
     }
 
