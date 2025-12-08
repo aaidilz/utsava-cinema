@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignUuid('subscription_id')->constrained('subscriptions')->onDelete('cascade');
-            $table->string('midtrans_id')->nullable();
+            $table->string('midtrans_id')->nullable()->unique();
             $table->text('snap_token')->nullable();
             $table->string('status')->default('pending');
             $table->decimal('amount', 10, 2);
