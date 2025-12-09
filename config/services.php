@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'anime' => [
+        'endpoint' => env('API_ENDPOINT'),
+    ],
+
 ];
