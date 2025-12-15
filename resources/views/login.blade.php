@@ -16,7 +16,7 @@
             Masuk ke akun Anda
         </p>
 
-        <!-- ❗ FUNGSI TIDAK DIUBAH -->
+        
         <form action="/login" method="POST" class="space-y-5">
             @csrf
 
