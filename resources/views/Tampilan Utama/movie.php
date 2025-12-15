@@ -76,7 +76,7 @@ $movies = query("SELECT * FROM movies");
         </div>
       </div>
       <section>
-        <h4>popular</h4>
+        <h4>####</h4>
         <i class="bi bi-chevron-left"></i>
         <i class="bi bi-chevron-right"></i>
         <div class="cards">
