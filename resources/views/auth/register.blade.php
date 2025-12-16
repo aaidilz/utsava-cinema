@@ -20,7 +20,7 @@
 <body class="bg-gray-900 text-white">
     <!-- Background -->
     <div class="fixed inset-0 w-full h-full">
-        <div class="absolute inset-0 bg-gradient-to-br from-red-900/20 via-gray-900 to-black"></div>
+        <div class="absolute inset-0 bg-linear-to-br from-red-900/20 via-gray-900 to-black"></div>
     </div>
 
     <!-- Register Container -->
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Form -->
-            <form method="POST" action="{{ route('auth.register') }}" class="space-y-6">
+            <form method="POST" action="{{ route('register') }}" class="space-y-6">
                 @csrf
 
                 <!-- Name -->
@@ -137,7 +137,7 @@
                 <!-- Sign In Link -->
                 <p class="text-center text-gray-400">
                     Already have an account?
-                    <a href="{{ route('auth.login') }}" class="text-red-600 hover:text-red-500 font-medium">
+                    <a href="{{ route('login') }}" class="text-red-600 hover:text-red-500 font-medium">
                         Sign In
                     </a>
                 </p>

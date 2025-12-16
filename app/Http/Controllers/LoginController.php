@@ -11,7 +11,6 @@ class LoginController extends Controller
 {
    public function showLogin()
 {
-    // PAKAI LOGIN DI FOLDER auth
     return view('auth.login');
 }
 

@@ -50,7 +50,7 @@
             </a>
         </div>
 
-        <div class="content-area flex-grow p-8 bg-gray-900">
+        <div class="content-area grow p-8 bg-gray-900">
             <h1 class="text-3xl font-bold mb-8 border-b pb-4 border-gray-700 text-red-600">
                 <i class="fas fa-tachometer-alt mr-2"></i> DASHBOARD
             </h1>
@@ -61,28 +61,28 @@
                     <h3 class="text-xl font-bold mb-1">Total Movies</h3>
                     <p class="text-4xl font-extrabold">256</p>
                     <a href="#" class="mt-4 inline-block text-sm font-semibold hover:underline">View Details &rarr;</a>
-                    <i class="fas fa-film absolute right-[-10px] bottom-[-20px] text-5xl opacity-20 transform -rotate-12"></i>
+                    <i class="fas fa-film absolute -right-2.5 -bottom-5 text-5xl opacity-20 transform -rotate-12"></i>
                 </div>
 
                 <div class="info-card bg-green-600 p-6 rounded-xl shadow-lg relative overflow-hidden">
                     <h3 class="text-xl font-bold mb-1">Registered Users</h3>
                     <p class="text-4xl font-extrabold">1.5K</p>
                     <a href="#" class="mt-4 inline-block text-sm font-semibold hover:underline">View Details &rarr;</a>
-                    <i class="fas fa-users absolute right-[-10px] bottom-[-20px] text-5xl opacity-20 transform -rotate-12"></i>
+                    <i class="fas fa-users absolute -right-2.5 -bottom-5 text-5xl opacity-20 transform -rotate-12"></i>
                 </div>
 
                 <div class="info-card bg-red-600 p-6 rounded-xl shadow-lg relative overflow-hidden">
                     <h3 class="text-xl font-bold mb-1">Available Genres</h3>
                     <p class="text-4xl font-extrabold">42</p>
                     <a href="#" class="mt-4 inline-block text-sm font-semibold hover:underline">View Details &rarr;</a>
-                    <i class="fas fa-tags absolute right-[-10px] bottom-[-20px] text-5xl opacity-20 transform -rotate-12"></i>
+                    <i class="fas fa-tags absolute -right-2.5 -bottom-5 text-5xl opacity-20 transform -rotate-12"></i>
                 </div>
                 
                 <div class="info-card bg-indigo-600 p-6 rounded-xl shadow-lg relative overflow-hidden">
                     <h3 class="text-xl font-bold mb-1">Today's Revenue</h3>
                     <p class="text-4xl font-extrabold">$1,234</p>
                     <a href="#" class="mt-4 inline-block text-sm font-semibold hover:underline">View Report &rarr;</a>
-                    <i class="fas fa-dollar-sign absolute right-[-10px] bottom-[-20px] text-5xl opacity-20 transform -rotate-12"></i>
+                    <i class="fas fa-dollar-sign absolute -right-2.5 -bottom-5 text-5xl opacity-20 transform -rotate-12"></i>
                 </div>
 
             </div>

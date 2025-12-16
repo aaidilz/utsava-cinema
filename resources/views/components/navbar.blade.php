@@ -1,6 +1,6 @@
 
     <!-- TOP NAVBAR -->
-    <header class="h-[72px] bg-[#1f1a45] px-6 flex items-center justify-between">
+    <header class="h-18 bg-[#1f1a45] px-6 flex items-center justify-between">
 
       <!-- BRAND -->
       <div class="text-lg font-bold tracking-wide">
@@ -56,7 +56,7 @@
       <div class="flex items-center gap-4">
 
         <!-- SEARCH -->
-        <div class="flex items-center bg-[#352c6a] px-3 py-2 rounded-lg gap-2 w-[220px]">
+        <div class="flex items-center bg-[#352c6a] px-3 py-2 rounded-lg gap-2 w-55">
           <svg class="w-4 h-4 text-[#c7c4f3]" fill="none" stroke="currentColor" stroke-width="1.5"
                viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
