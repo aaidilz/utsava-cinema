@@ -18,15 +18,22 @@ Route::prefix('api')->group(function () {
     Route::post('/cache/clear', [AnimeApiController::class, 'clearCache']);
 });
 
-
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout']);
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register']);
 
+Route::get('/watch', function () {
+    return view('auth.watchlist');
+});
 
+
+
+Route::get('/dashboard', function () {
+    return view('auth.dashboard');
+});
+
+route::get('/home', function () {
+    return view('Halamanutama.home');
+});

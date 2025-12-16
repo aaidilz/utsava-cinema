@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
-    public function showLogin()
-    {
-        return view('login');
-    }
+   public function showLogin()
+{
+    // PAKAI LOGIN DI FOLDER auth
+    return view('auth.login');
+}
 
     public function login(Request $request)
     {
