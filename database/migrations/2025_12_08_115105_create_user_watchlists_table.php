@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('user_watchlists', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->integer('external_movie_id');
-            $table->string('movie_title');
+            $table->string('identifier_id');
+            $table->string('anime_title');
             $table->string('poster_path')->nullable();
             $table->timestamps();
         });

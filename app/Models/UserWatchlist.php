@@ -11,8 +11,8 @@ class UserWatchlist extends Model
 
     protected $fillable = [
         'user_id',
-        'external_movie_id',
-        'movie_title',
+        'identifier_id',
+        'anime_title',
         'poster_path',
     ];
 

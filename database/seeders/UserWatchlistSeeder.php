@@ -52,8 +52,8 @@ class UserWatchlistSeeder extends Seeder
                 
                 UserWatchlist::create([
                     'user_id' => $user->id,
-                    'external_movie_id' => $animeIndex + 1000, // Generate unique movie ID
-                    'movie_title' => $anime['title'],
+                    'identifier_id' => $animeIndex + 1000, // Generate unique movie ID
+                    'anime_title' => $anime['title'],
                     'poster_path' => $anime['poster'],
                 ]);
             }
@@ -65,14 +65,14 @@ class UserWatchlistSeeder extends Seeder
             foreach ($animeList as $index => $anime) {
                 // Check if not already added
                 $exists = UserWatchlist::where('user_id', $activeUser->id)
-                    ->where('movie_title', $anime['title'])
+                    ->where('anime_title', $anime['title'])
                     ->exists();
                 
                 if (!$exists && $index < 12) {
                     UserWatchlist::create([
                         'user_id' => $activeUser->id,
-                        'external_movie_id' => $index + 2000,
-                        'movie_title' => $anime['title'],
+                        'identifier_id' => $index + 2000,
+                        'anime_title' => $anime['title'],
                         'poster_path' => $anime['poster'],
                     ]);
                 }
