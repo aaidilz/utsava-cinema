@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <title>{{ $title ?? 'Animetion' }}</title>
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  @stack('styles')
 </head>
 
-<body class=" bg-gradient-to-br from-[#6d5bd0] to-[#8b7cf6]">
+<body class=" bg-linear-to-br from-[#6d5bd0] to-[#8b7cf6]">
   <div class="flex flex-col h-full bg-[#2b235a] text-[#f2f1ff]">
 
     {{ $slot }}
 
   </div>
-</body>
+  @stack('scripts')
+  </body>
 </html>
