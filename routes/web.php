@@ -24,3 +24,9 @@ Route::get('/watch', function () {
 Route::get('/dashboard', function () {
     return view('auth.dashboard');
 });
+
+
+Route::get('/Halaman', function () {
+    return view('HalamanStreaming');
+});
+
