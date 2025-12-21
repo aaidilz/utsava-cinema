@@ -46,7 +46,12 @@ Route::middleware(['auth', 'admin'])->group(function () {
     })->name('dashboard');
 });
 
-Route::get('/pricing', fn () => view('pricing'));
-Route::get('/checkout/{plan}', fn ($plan) => view('checkout', compact('plan')))
-    ->name('checkout');
-Route::get('/settings', fn () => view('settings'))->middleware('auth');
+// test routes for static pages
+Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
+Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
+    ->name('pages.checkout');
+Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+// Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
+// Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
+//     ->name('pages.checkout');
+// Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');

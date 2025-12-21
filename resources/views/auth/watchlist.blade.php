@@ -2,8 +2,7 @@
     @push('styles')
     @endpush
 
-    <x-navbar />
-
+    
     <main class="flex-1 container mx-auto max-w-7xl p-4 md:p-6 text-white min-h-screen">
         
         <!-- Page Header -->
@@ -127,7 +126,5 @@
         </div>
 
     </main>
-
-    <x-footer />
 
 </x-layout>

@@ -1,6 +1,5 @@
 <x-layout title="Watch: {{ $anime['title'] ?? 'Episode' }}">
-    <x-navbar />
-
+    
     <main class="flex-1 container mx-auto max-w-7xl p-4 md:p-6 text-white min-h-screen">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Video Player -->
@@ -64,7 +63,7 @@
         </div>
     </main>
 
-    <x-footer />
+    
 
     @push('scripts')
     <script>

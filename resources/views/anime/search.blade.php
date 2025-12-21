@@ -1,5 +1,5 @@
 <x-layout title="Search Anime">
-    <x-navbar />
+    
 
     <main class="flex-1 container mx-auto max-w-7xl p-4 md:p-6 text-white min-h-screen">
         <div class="mb-6">
@@ -42,5 +42,5 @@
         @endif
     </main>
 
-    <x-footer />
+    
 </x-layout>

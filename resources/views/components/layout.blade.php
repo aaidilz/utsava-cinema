@@ -9,9 +9,15 @@
 </head>
 
 <body class=" bg-linear-to-br from-[#6d5bd0] to-[#8b7cf6]">
-  <div class="flex flex-col h-full bg-[#2b235a] text-[#f2f1ff]">
+  <div class="flex flex-col min-h-screen bg-[#2b235a] text-[#f2f1ff]">
 
-    {{ $slot }}
+    <x-navbar />
+
+    <div class="flex-1">
+      {{ $slot }}
+    </div>
+
+    <x-footer />
 
   </div>
   @stack('scripts')

@@ -20,8 +20,7 @@
         </style>
     @endpush
 
-    <x-navbar />
-
+    
     {{-- 
       FIX 1: Tambahkan 'container mx-auto max-w-7xl' 
       Ini membatasi lebar konten agar tidak melar sampai ujung monitor ultrawide.
@@ -125,7 +124,7 @@
 
     </main>
 
-    <x-footer />
+    
 
     @push('scripts')
         <script>
