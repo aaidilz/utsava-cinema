@@ -3,5 +3,9 @@ import './bootstrap';
 // Import Swiper
 import Swiper from 'swiper/bundle';
 
-// Make Swiper available globally for blade templates
+// Import Video.js
+import videojs from 'video.js';
+
+// Make available globally for blade templates
 window.Swiper = Swiper;
+window.videojs = videojs;

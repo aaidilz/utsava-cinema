@@ -6,6 +6,9 @@
 /* Swiper Carousel */
 @import 'swiper/swiper-bundle.css';
 
+/* Video.js Player */
+@import 'video.js/dist/video-js.min.css';
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';

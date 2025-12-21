@@ -37,7 +37,8 @@ class AnimeController extends Controller
     {
         $anime = $this->animeService->getDetail($id);
         $episodes = $this->animeService->getEpisodes($id);
-        $streamUrl = $this->animeService->getStreamUrl($id, $episode);
+        $language = request()->query('language', 'sub');
+        $streams = $this->animeService->getStreams($id, $episode, $language);
 
         $current = collect($episodes)->firstWhere('number', (int)$episode) ?? $episodes[0] ?? null;
 
@@ -45,7 +46,10 @@ class AnimeController extends Controller
             'anime' => $anime,
             'episodes' => $episodes,
             'currentEpisode' => $current,
-            'streamUrl' => $streamUrl,
+            'streams' => $streams,
+            'animeId' => $id,
+            'episodeNumber' => $episode,
+            'language' => $language,
         ]);
     }
 

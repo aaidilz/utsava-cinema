@@ -118,27 +118,72 @@ class AnimeService
     }
 
     /**
-     * Get stream URL for episode
+     * Get all available streams for episode
+     */
+    public function getStreams(string $id, string $episode, string $language = 'sub'): array
+    {
+        $key = "anime_streams_{$id}_{$episode}_{$language}";
+        return Cache::remember($key, 60 * 30, function () use ($id, $episode, $language) {
+            try {
+                $resp = Http::get($this->base . "/anime/{$id}/episode/{$episode}/stream");
+                if ($resp->ok()) {
+                    $data = $resp->json();
+                    $streams = $data['streams'] ?? [];
+                    
+                    // Filter by language and normalize
+                    return collect($streams)
+                        ->filter(fn($s) => ($s['language'] ?? 'sub') === $language)
+                        ->map(function ($s) {
+                            return [
+                                'url' => $s['url'] ?? '',
+                                'resolution' => (int)($s['resolution'] ?? 0),
+                                'language' => $s['language'] ?? 'sub',
+                                'referer' => $s['referer'] ?? null,
+                                'subtitle' => $s['subtitle'] ?? null,
+                            ];
+                        })
+                        ->sortByDesc('resolution')
+                        ->values()
+                        ->all();
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Anime streams fetch failed: ' . $e->getMessage());
+            }
+            return $this->mockStreams();
+        });
+    }
+
+    /**
+     * Get stream URL for episode (legacy, returns best quality)
      */
     public function getStreamUrl(string $id, string $episode): string
     {
-        try {
-            $resp = Http::get($this->base . "/anime/{$id}/episode/{$episode}/stream");
-            if ($resp->ok()) {
-                $streams = $resp->json('streams') ?? [];
-                // Pick highest resolution stream
-                $best = collect($streams)
-                    ->sortByDesc(fn($s) => $s['resolution'] ?? 0)
-                    ->first();
-                if (!empty($best['url'])) {
-                    return (string)$best['url'];
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::warning('Anime stream fetch failed: ' . $e->getMessage());
+        $streams = $this->getStreams($id, $episode);
+        if (!empty($streams[0]['url'])) {
+            return $streams[0]['url'];
         }
         // Placeholder stream url
         return 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4';
+    }
+
+    protected function mockStreams(): array
+    {
+        return [
+            [
+                'url' => 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
+                'resolution' => 1080,
+                'language' => 'sub',
+                'referer' => null,
+                'subtitle' => null,
+            ],
+            [
+                'url' => 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
+                'resolution' => 720,
+                'language' => 'sub',
+                'referer' => null,
+                'subtitle' => null,
+            ],
+        ];
     }
 
     // --- Mock helpers ---
