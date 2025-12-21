@@ -45,3 +45,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('auth.dashboard');
     })->name('dashboard');
 });
+
+Route::get('/pricing', fn () => view('pricing'));
+Route::get('/checkout/{plan}', fn ($plan) => view('checkout', compact('plan')))
+    ->name('checkout');
+Route::get('/settings', fn () => view('settings'))->middleware('auth');
