@@ -1,6 +1,5 @@
 <x-layout title="Home">
     @push('styles')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
         <style>
             .swiper-wrapper { padding-bottom: 30px; /* Space for pagination */ } 
             
@@ -129,7 +128,6 @@
     <x-footer />
 
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.swiper').forEach(container => {

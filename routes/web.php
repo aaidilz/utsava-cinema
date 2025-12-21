@@ -26,7 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/watchlist', function () {
         return view('auth.watchlist');
     })->name('watchlist');
-    
+});
+
+// Admin only routes
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', function () {
         return view('auth.dashboard');
     })->name('dashboard');

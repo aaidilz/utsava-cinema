@@ -19,6 +19,7 @@ class UserSeeder extends Seeder
             'email' => 'admin@utsava-cinema.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'role' => 'admin',
             'is_premium' => true,
             'premium_until' => now()->addYear(),
         ]);
@@ -29,6 +30,7 @@ class UserSeeder extends Seeder
             'email' => 'john@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'role' => 'user',
             'is_premium' => true,
             'premium_until' => now()->addMonths(3),
         ]);
@@ -38,6 +40,7 @@ class UserSeeder extends Seeder
             'email' => 'jane@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'role' => 'user',
             'is_premium' => true,
             'premium_until' => now()->addMonth(),
         ]);
@@ -48,6 +51,7 @@ class UserSeeder extends Seeder
             'email' => 'bob@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'role' => 'user',
             'is_premium' => false,
             'premium_until' => null,
         ]);
@@ -57,6 +61,7 @@ class UserSeeder extends Seeder
             'email' => 'alice@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'role' => 'user',
             'is_premium' => false,
             'premium_until' => null,
         ]);
@@ -67,6 +72,7 @@ class UserSeeder extends Seeder
             'email' => 'charlie@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'role' => 'user',
             'is_premium' => false,
             'premium_until' => now()->subDays(5),
         ]);
@@ -77,6 +83,7 @@ class UserSeeder extends Seeder
             'email' => 'test@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
+            'role' => 'user',
             'is_premium' => false,
             'premium_until' => null,
         ]);

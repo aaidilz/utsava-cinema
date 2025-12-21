@@ -22,6 +22,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'is_premium',
+        'premium_until',
     ];
 
     /**
@@ -57,5 +60,31 @@ class User extends Authenticatable
     public function watchlists()
     {
         return $this->hasMany(UserWatchlist::class);
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is regular user
+     */
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Check if user has premium subscription
+     */
+    public function isPremium(): bool
+    {
+        return $this->is_premium && 
+               $this->premium_until && 
+               $this->premium_until->isFuture();
     }
 }

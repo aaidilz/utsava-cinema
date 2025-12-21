@@ -95,17 +95,22 @@
             <div class="px-4 py-2 border-b border-[#4a3f7a]">
               <p class="text-sm font-semibold text-[#f2f1ff]">{{ Auth::user()->name }}</p>
               <p class="text-xs text-[#c7c4f3]">{{ Auth::user()->email }}</p>
+              @if(Auth::user()->isAdmin())
+              <span class="inline-block mt-1 px-2 py-0.5 text-[10px] bg-red-600 text-white rounded-full">Admin</span>
+              @endif
             </div>
+            @if(Auth::user()->isAdmin())
             <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
-              Dashboard
+              <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
             </a>
+            @endif
             <a href="{{ route('watchlist') }}" class="block px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
-              My Watchlist
+              <i class="fas fa-heart mr-2"></i>My Watchlist
             </a>
             <form method="POST" action="{{ route('logout') }}" class="block">
               @csrf
               <button type="submit" class="w-full text-left px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
-                Logout
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
               </button>
             </form>
           </div>
