@@ -33,14 +33,14 @@
         </div>
 
         <!-- Anime List -->
-        <div class="flex items-center gap-2 hover:text-[#f2f1ff] cursor-pointer">
+        <a href="{{ route('anime.index') }}" class="flex items-center gap-2 hover:text-[#f2f1ff]">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5"
                viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
                   d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
           Anime List
-        </div>
+        </a>
 
         <!-- My List / Favorites (Only for authenticated users) -->
         @auth
@@ -60,7 +60,7 @@
       <div class="flex items-center gap-4">
 
         <!-- SEARCH -->
-        <div class="flex items-center bg-[#352c6a] px-3 py-2 rounded-lg gap-2 w-55">
+        <form action="{{ route('anime.search') }}" method="GET" class="flex items-center bg-[#352c6a] px-3 py-2 rounded-lg gap-2 w-55">
           <svg class="w-4 h-4 text-[#c7c4f3]" fill="none" stroke="currentColor" stroke-width="1.5"
                viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -68,10 +68,12 @@
           </svg>
           <input
             type="text"
+            name="query"
+            value="{{ request('query') }}"
             placeholder="Search anime..."
             class="bg-transparent outline-none text-sm w-full placeholder:text-[#a3a0d9]"
           />
-        </div>
+        </form>
 
         @auth
         <!-- NOTIFICATION (Only for authenticated users) -->

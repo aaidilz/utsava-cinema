@@ -3,12 +3,19 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnimeApiController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', [HomeController::class, 'index']);
+
+// Anime browsing & streaming
+Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
+Route::get('/anime/{id}', [AnimeController::class, 'show'])->name('anime.show');
+Route::get('/watch/{id}/{episode}', [AnimeController::class, 'watch'])->name('watch.show');
+Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
 
 // Guest only routes (redirect to home if already authenticated)
 Route::middleware('guest')->group(function () {
@@ -34,9 +41,3 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('auth.dashboard');
     })->name('dashboard');
 });
-
-// Public streaming page
-Route::get('/Halaman', function () {
-    return view('HalamanStreaming');
-});
-
