@@ -20,32 +20,8 @@ class SubscriptionSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'name' => 'Premium Monthly',
-                'price' => 79000.00,
-                'duration_days' => 30,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Basic Quarterly',
-                'price' => 129000.00,
-                'duration_days' => 90,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Premium Quarterly',
-                'price' => 199000.00,
-                'duration_days' => 90,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Basic Yearly',
-                'price' => 449000.00,
-                'duration_days' => 365,
-                'is_active' => true,
-            ],
-            [
                 'name' => 'Premium Yearly',
-                'price' => 699000.00,
+                'price' => 99000.00,
                 'duration_days' => 365,
                 'is_active' => true,
             ],
