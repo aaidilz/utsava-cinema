@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'firebase_uid',
         'role',
         'is_premium',
         'premium_until',
@@ -51,6 +52,7 @@ class User extends Authenticatable
             'is_premium' => 'boolean',
             'premium_until' => 'datetime',
             'active_subscription_id' => 'string',
+            'firebase_uid' => 'string',
         ];
     }
 

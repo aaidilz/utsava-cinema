@@ -7,6 +7,7 @@ use App\Http\Controllers\AnimeController;
 use App\Http\Controllers\StreamProxyController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\FirebaseAuthController;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -25,6 +26,9 @@ Route::get('/stream-proxy/{id}/{episode}', [StreamProxyController::class, 'proxy
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+
+    Route::post('/auth/firebase/verify', [FirebaseAuthController::class, 'verifyToken'])
+        ->name('auth.firebase.verify');
     
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);

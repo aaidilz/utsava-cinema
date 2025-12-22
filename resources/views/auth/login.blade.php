@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sign In - Utsava Cinema</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="firebase-verify-url" content="{{ route('auth.firebase.verify') }}">
+    <meta name="home-url" content="{{ route('home') }}">
     
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -97,6 +100,15 @@
                     Sign In
                 </button>
 
+                <!-- Google Sign In -->
+                <button
+                    type="button"
+                    id="googleSignInBtn"
+                    class="w-full py-3 px-4 bg-gray-800 hover:bg-gray-700 font-bold text-white rounded-lg transition duration-200 border border-gray-700"
+                >
+                    Continue with Google
+                </button>
+
                 <!-- Divider -->
                 <div class="relative">
                     <div class="absolute inset-0 flex items-center">
@@ -133,5 +145,99 @@
             {{ $errors->first() }}
         </div>
     @endif
+
+    <script id="firebase-config" type="application/json">{!! json_encode(config('services.firebase.web'), JSON_UNESCAPED_SLASHES) !!}</script>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+        import { getAuth, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+
+        const firebaseConfigEl = document.getElementById('firebase-config');
+        const firebaseConfig = firebaseConfigEl?.textContent ? JSON.parse(firebaseConfigEl.textContent) : null;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const verifyUrl = document.querySelector('meta[name="firebase-verify-url"]')?.getAttribute('content');
+        const homeUrl = document.querySelector('meta[name="home-url"]')?.getAttribute('content');
+        const googleSignInBtn = document.getElementById('googleSignInBtn');
+        const githubSignInBtn = document.getElementById('githubSignInBtn');
+
+        const missingFirebaseConfig = !firebaseConfig
+            || !firebaseConfig.apiKey
+            || !firebaseConfig.authDomain
+            || !firebaseConfig.projectId
+            || !firebaseConfig.appId;
+
+        if (missingFirebaseConfig) {
+            console.warn('Firebase web config is missing. Set FIREBASE_WEB_* variables in .env');
+            if (googleSignInBtn) {
+                googleSignInBtn.disabled = true;
+                googleSignInBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                googleSignInBtn.textContent = 'Google Sign-In not configured';
+            }
+
+            if (githubSignInBtn) {
+                githubSignInBtn.disabled = true;
+                githubSignInBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                githubSignInBtn.textContent = 'GitHub Sign-In not configured';
+            }
+        }
+
+        const app = missingFirebaseConfig ? null : initializeApp(firebaseConfig);
+        const auth = app ? getAuth(app) : null;
+
+        const googleProvider = new GoogleAuthProvider();
+        const githubProvider = new GithubAuthProvider();
+        // Helps ensure email is available for GitHub accounts.
+        githubProvider.addScope('user:email');
+
+        async function signInWithProvider(provider, providerLabel) {
+            if (!csrfToken) {
+                alert('Missing CSRF token.');
+                return;
+            }
+
+            if (!verifyUrl) {
+                alert('Missing verification endpoint URL.');
+                return;
+            }
+
+            if (!auth) {
+                alert(`${providerLabel} Sign-In is not configured.`);
+                return;
+            }
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const idToken = await result.user.getIdToken(true);
+
+                const res = await fetch(verifyUrl, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({ idToken }),
+                });
+
+                const data = await res.json().catch(() => null);
+
+                if (!res.ok) {
+                    const message = data?.message || data?.errors?.idToken?.[0] || `${providerLabel} sign-in failed.`;
+                    alert(message);
+                    return;
+                }
+
+                window.location.href = data?.redirect || homeUrl || '/';
+            } catch (err) {
+                console.error(err);
+                alert(`${providerLabel} sign-in cancelled or failed.`);
+            }
+        }
+
+        googleSignInBtn?.addEventListener('click', () => signInWithProvider(googleProvider, 'Google'));
+        githubSignInBtn?.addEventListener('click', () => signInWithProvider(githubProvider, 'GitHub'));
+    </script>
 </body>
 </html>
