@@ -19,7 +19,6 @@ class DatabaseSeeder extends Seeder
             SubscriptionSeeder::class,
             UserSeeder::class,
             TransactionSeeder::class,
-            UserWatchlistSeeder::class,
         ]);
     }
 }

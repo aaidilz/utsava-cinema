@@ -24,16 +24,6 @@ class UserSeeder extends Seeder
             'premium_until' => now()->addYear(),
         ]);
 
-        // Create premium users
-        User::create([
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'role' => 'user',
-            'is_premium' => true,
-            'premium_until' => now()->addMonths(3),
-        ]);
 
         User::create([
             'name' => 'Jane Smith',
@@ -49,16 +39,6 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Bob Wilson',
             'email' => 'bob@example.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-            'role' => 'user',
-            'is_premium' => false,
-            'premium_until' => null,
-        ]);
-
-        User::create([
-            'name' => 'Alice Johnson',
-            'email' => 'alice@example.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
             'role' => 'user',

@@ -25,6 +25,7 @@ class User extends Authenticatable
         'role',
         'is_premium',
         'premium_until',
+        'active_subscription_id',
     ];
 
     /**
@@ -49,6 +50,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_premium' => 'boolean',
             'premium_until' => 'datetime',
+            'active_subscription_id' => 'string',
         ];
     }
 
@@ -60,6 +62,14 @@ class User extends Authenticatable
     public function watchlists()
     {
         return $this->hasMany(UserWatchlist::class);
+    }
+
+    /**
+     * The user's active subscription (nullable).
+     */
+    public function activeSubscription()
+    {
+        return $this->belongsTo(Subscription::class, 'active_subscription_id');
     }
 
     /**
@@ -79,12 +89,23 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has premium subscription
+     * Computed `is_premium` attribute.
+     * Prefer deriving premium state from `premium_until` (and active subscription).
+     */
+    public function getIsPremiumAttribute(): bool
+    {
+        if ($this->premium_until instanceof \Illuminate\Support\Carbon) {
+            return $this->premium_until->isFuture();
+        }
+
+        return (bool) ($this->attributes['is_premium'] ?? false);
+    }
+
+    /**
+     * Compatibility helper method used elsewhere in code.
      */
     public function isPremium(): bool
     {
-        return $this->is_premium && 
-               $this->premium_until && 
-               $this->premium_until->isFuture();
+        return $this->getIsPremiumAttribute();
     }
 }
