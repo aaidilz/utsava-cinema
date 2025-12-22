@@ -8,6 +8,9 @@ use App\Http\Controllers\StreamProxyController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\FirebaseAuthController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\MidtransCallbackController;
+use App\Models\Subscription;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -41,7 +44,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/watchlist', function () {
         return view('auth.watchlist');
     })->name('watchlist');
+
+    Route::post('/payments/initiate', [PaymentController::class, 'initiate'])
+        ->name('payments.initiate');
+
+    Route::post('/payments/{transaction}/refresh', [PaymentController::class, 'refresh'])
+        ->name('payments.refresh');
+
+    Route::post('/payments/{transaction}/cancel', [PaymentController::class, 'cancel'])
+        ->name('payments.cancel');
 });
+
+Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
+    ->name('midtrans.callback');
 
 // Admin only routes
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -51,9 +66,20 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
 
 // test routes for static pages
-Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
-Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
-    ->name('pages.checkout');
+Route::get('/pricing', function () {
+    $subscriptions = Subscription::query()
+        ->where('is_active', true)
+        ->orderBy('price')
+        ->get();
+
+    return view('auth.pricing', compact('subscriptions'));
+})->name('pages.pricing');
+
+Route::get('/checkout/{subscription}', function (Subscription $subscription) {
+    abort_unless((bool) $subscription->is_active, 404);
+
+    return view('auth.checkout', compact('subscription'));
+})->middleware('auth')->name('pages.checkout');
 Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
 // Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
