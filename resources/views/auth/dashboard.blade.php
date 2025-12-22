@@ -1,92 +1,151 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard Admin - Utsava Cinema</title>
-    
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <title>Anime Platform Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Instrument Sans', sans-serif; background-color: #111; color: white; }
-            .admin-layout { display: flex; min-height: 100vh; }
-            .sidebar { width: 250px; background-color: #1f2937; padding-top: 2rem; }
-            .content-area { flex-grow: 1; padding: 2rem; background-color: #111827; }
-        </style>
-    @endif
+    <!-- Tailwind CSS v4 Browser -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="bg-gray-900 text-white">
 
-    <header class="h-16 bg-gray-800 shadow-lg flex items-center justify-between px-6 border-b border-red-900">
-        <div class="text-xl font-bold text-red-600">Admin Panel</div>
-        <div class="flex items-center space-x-4">
-            <input type="text" placeholder="Search..." class="px-3 py-2 text-sm bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:border-red-600">
-            <i class="fas fa-bell text-gray-400 hover:text-red-500 cursor-pointer"></i>
-            <i class="fas fa-user-circle text-gray-400 hover:text-red-500 cursor-pointer"></i>
-        </div>
-    </header>
+<body class="bg-gray-100 text-gray-800">
 
-    <div class="admin-layout flex min-h-[calc(100vh-4rem)]">
+<div class="flex min-h-screen">
 
-        <div class="sidebar w-64 bg-gray-800 p-4 shadow-xl border-r border-red-900/50">
-            <a href="#" class="nav-item flex items-center space-x-3 p-3 rounded-lg bg-red-800 text-white font-semibold transition duration-200">
-                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
-            </a>
-            <a href="#" class="nav-item flex items-center space-x-3 p-3 mt-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200">
-                <i class="fas fa-film"></i> <span>Movie</span>
-            </a>
-            <a href="#" class="nav-item flex items-center space-x-3 p-3 mt-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200">
-                <i class="fas fa-users"></i> <span>User</span>
-            </a>
-            <a href="#" class="nav-item flex items-center space-x-3 p-3 mt-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200">
-                <i class="fas fa-tags"></i> <span>Genre</span>
-            </a>
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-[#1f1f1f] text-white flex flex-col">
+        <div class="p-5 text-2xl font-bold border-b border-white/10">
+            🎬 Anime Admin
         </div>
 
-        <div class="content-area grow p-8 bg-gray-900">
-            <h1 class="text-3xl font-bold mb-8 border-b pb-4 border-gray-700 text-red-600">
-                <i class="fas fa-tachometer-alt mr-2"></i> DASHBOARD
-            </h1>
+        <nav class="flex-1 p-4 space-y-2">
+            <a href="{{ route('dashboard') }}" class="block px-4 py-2 rounded bg-[#c7c4f3] text-black font-semibold">
+                Dashboard
+            </a>
+            <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 rounded hover:bg-white/10">
+                Users
+            </a>
+            <a href="#" class="block px-4 py-2 rounded hover:bg-white/10">
+                Anime
+            </a>
+            <a href="#" class="block px-4 py-2 rounded hover:bg-white/10">
+                Transaksi
+            </a>
+        </nav>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="p-4 border-t border-white/10 text-sm text-gray-400">
+            © 2025 Anime Platform
+        </div>
+    </aside>
 
-                <div class="info-card bg-teal-600 p-6 rounded-xl shadow-lg relative overflow-hidden">
-                    <h3 class="text-xl font-bold mb-1">Total Movies</h3>
-                    <p class="text-4xl font-extrabold">256</p>
-                    <a href="#" class="mt-4 inline-block text-sm font-semibold hover:underline">View Details &rarr;</a>
-                    <i class="fas fa-film absolute -right-2.5 -bottom-5 text-5xl opacity-20 transform -rotate-12"></i>
-                </div>
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 p-6 space-y-8">
 
-                <div class="info-card bg-green-600 p-6 rounded-xl shadow-lg relative overflow-hidden">
-                    <h3 class="text-xl font-bold mb-1">Registered Users</h3>
-                    <p class="text-4xl font-extrabold">1.5K</p>
-                    <a href="#" class="mt-4 inline-block text-sm font-semibold hover:underline">View Details &rarr;</a>
-                    <i class="fas fa-users absolute -right-2.5 -bottom-5 text-5xl opacity-20 transform -rotate-12"></i>
-                </div>
+        <!-- HEADER -->
+        <div>
+            <h1 class="text-2xl font-bold">Dashboard</h1>
+            <p class="text-gray-500">Ringkasan aktivitas platform anime</p>
+        </div>
 
-                <div class="info-card bg-red-600 p-6 rounded-xl shadow-lg relative overflow-hidden">
-                    <h3 class="text-xl font-bold mb-1">Available Genres</h3>
-                    <p class="text-4xl font-extrabold">42</p>
-                    <a href="#" class="mt-4 inline-block text-sm font-semibold hover:underline">View Details &rarr;</a>
-                    <i class="fas fa-tags absolute -right-2.5 -bottom-5 text-5xl opacity-20 transform -rotate-12"></i>
-                </div>
-                
-                <div class="info-card bg-indigo-600 p-6 rounded-xl shadow-lg relative overflow-hidden">
-                    <h3 class="text-xl font-bold mb-1">Today's Revenue</h3>
-                    <p class="text-4xl font-extrabold">$1,234</p>
-                    <a href="#" class="mt-4 inline-block text-sm font-semibold hover:underline">View Report &rarr;</a>
-                    <i class="fas fa-dollar-sign absolute -right-2.5 -bottom-5 text-5xl opacity-20 transform -rotate-12"></i>
-                </div>
-
+        <!-- STAT CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-5 rounded-xl shadow">
+                <p class="text-sm text-gray-500">Total Anime</p>
+                <p class="text-3xl font-bold">1,248</p>
             </div>
-            
+
+            <div class="bg-white p-5 rounded-xl shadow">
+                <p class="text-sm text-gray-500">Total User</p>
+                <p class="text-3xl font-bold">5,342</p>
             </div>
-    </div>
+
+            <div class="bg-white p-5 rounded-xl shadow">
+                <p class="text-sm text-gray-500">Pendapatan</p>
+                <p class="text-3xl font-bold text-green-600">Rp 128.000.000</p>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow">
+                <p class="text-sm text-gray-500">User Premium</p>
+                <p class="text-3xl font-bold text-indigo-600">1,024</p>
+            </div>
+        </div>
+
+        <!-- GRAPH & USER TABLE -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- GRAPH -->
+            <div class="lg:col-span-1 bg-white p-5 rounded-xl shadow">
+                <h2 class="font-semibold mb-4">Pertumbuhan User</h2>
+
+                <!-- Simple bar graph -->
+                <div class="flex items-end gap-3 h-40">
+                    <div class="w-8 bg-indigo-400 h-[40%] rounded"></div>
+                    <div class="w-8 bg-indigo-400 h-[55%] rounded"></div>
+                    <div class="w-8 bg-indigo-400 h-[65%] rounded"></div>
+                    <div class="w-8 bg-indigo-400 h-[80%] rounded"></div>
+                    <div class="w-8 bg-indigo-400 h-[60%] rounded"></div>
+                </div>
+
+                <p class="text-xs text-gray-500 mt-2">Data user per bulan</p>
+            </div>
+
+            <!-- USER TABLE -->
+            <div class="lg:col-span-2 bg-white p-5 rounded-xl shadow overflow-x-auto">
+                <h2 class="font-semibold mb-4">Daftar User</h2>
+
+                <table class="w-full text-sm">
+                    <thead class="text-left text-gray-500 border-b">
+                        <tr>
+                            <th class="py-2">Nama</th>
+                            <th class="py-2">Email</th>
+                            <th class="py-2">Status Subscription</th>
+                            <th class="py-2">Status Billing</th>
+                            <th class="py-2">Sisa Waktu</th>
+                            <th class="py-2">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        @foreach($users ?? collect() as $user)
+                            @php
+                                $lastTx = $user->transactions->first() ?? null;
+                                $billing = $lastTx ? (ucfirst($lastTx->status) . ($lastTx->paid_at ? ' • '.$lastTx->paid_at->format('Y-m-d') : '')) : 'No Tx';
+                                $remaining = ($user->premium_until && $user->is_premium) ? \Carbon\Carbon::now()->diffForHumans($user->premium_until, ['parts' => 3, 'short' => true]) : '-';
+                                $subLbl = $user->is_premium && optional($user->premium_until)->isFuture() ? '<span class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Premium</span>' : '<span class="px-2 py-1 text-xs bg-gray-200 rounded">Free</span>';
+                            @endphp
+                            <tr>
+                                <td class="py-3">{{ $user->name }}</td>
+                                <td class="py-3 text-sm text-gray-600">{{ $user->email }}</td>
+                                <td class="py-3">{!! $subLbl !!}</td>
+                                <td class="py-3">{{ $billing }}</td>
+                                <td class="py-3">{{ $remaining }}</td>
+                                <td class="py-3">
+                                    @if(auth()->check() && auth()->user()->isAdmin())
+                                        <a href="{{ route('admin.users.show', $user->id) }}" class="text-indigo-600 hover:underline mr-2">Detail</a>
+                                        <a href="{{ route('admin.users.edit', $user->id) }}" class="text-blue-600 mr-2">Edit</a>
+                                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus user ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="text-red-600">Hapus</button>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('login') }}" class="text-sm text-gray-500 italic">Login to manage</a>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <div class="mt-4">
+                    {{ $users->links() ?? '' }}
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</div>
 
 </body>
 </html>
