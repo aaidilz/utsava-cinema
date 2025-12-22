@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -16,35 +14,32 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required',
+        $credentials = $request->validate([
+            'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        // Attempt to authenticate using Laravel's built-in auth
+        if (Auth::attempt($credentials, $request->filled('remember'))) {
+            $request->session()->regenerate();
 
-        // Kalau user tidak ditemukan
-        if (!$user) {
-            return back()->withErrors(['email' => 'Email tidak ditemukan']);
+            // Redirect to intended URL or home
+            return redirect()->intended(route('home'));
         }
 
-        // Cek password
-        if (!Hash::check($request->password, $user->password)) {
-            return back()->withErrors(['password' => 'Password salah']);
-        }
-
-        // Login user
-        Auth::login($user);
-
-        $request->session()->regenerate();
-
-        return redirect('/dashboard');
+        // Authentication failed
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
+        
         $request->session()->invalidate();
-        return redirect('/login');
+        $request->session()->regenerateToken();
+        
+        return redirect()->route('home');
     }
 }

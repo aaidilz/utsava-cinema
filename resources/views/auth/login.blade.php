@@ -34,6 +34,13 @@
                 <h1 class="text-3xl font-bold mt-8">Sign In</h1>
             </div>
 
+            <!-- Success Message -->
+            @if(session('success'))
+            <div class="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg">
+                <p class="text-green-500 text-sm">{{ session('success') }}</p>
+            </div>
+            @endif
+
             <!-- Form -->
             <form method="POST" action="{{ route('login') }}" class="space-y-6">
                 @csrf

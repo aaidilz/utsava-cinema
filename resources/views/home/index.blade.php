@@ -1,6 +1,5 @@
 <x-layout title="Home">
     @push('styles')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
         <style>
             .swiper-wrapper { padding-bottom: 30px; /* Space for pagination */ } 
             
@@ -21,13 +20,24 @@
         </style>
     @endpush
 
-    <x-navbar />
-
+    
     {{-- 
       FIX 1: Tambahkan 'container mx-auto max-w-7xl' 
       Ini membatasi lebar konten agar tidak melar sampai ujung monitor ultrawide.
     --}}
     <main class="flex-1 container mx-auto max-w-7xl p-4 md:p-6 text-white min-h-screen">
+        
+        <!-- Success Message -->
+        @if(session('success'))
+        <div class="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg flex items-center justify-between">
+            <p class="text-green-500 text-sm">{{ session('success') }}</p>
+            <button onclick="this.parentElement.remove()" class="text-green-500 hover:text-green-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        @endif
         
         {{-- TRENDING SECTION --}}
         <section class="mb-10">
@@ -114,10 +124,9 @@
 
     </main>
 
-    <x-footer />
+    
 
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.swiper').forEach(container => {

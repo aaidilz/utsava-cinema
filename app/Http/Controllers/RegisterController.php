@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
@@ -35,9 +36,13 @@ class RegisterController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'role' => 'user', // Default role for new users
         ]);
 
-        // Redirect ke halaman lain dengan pesan sukses
-        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
+        // Auto login after registration
+        Auth::login($user);
+
+        // Redirect ke home dengan pesan sukses
+        return redirect()->route('home')->with('success', 'Welcome to Animetion! Registration successful.');
     }
 }

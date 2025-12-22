@@ -3,24 +3,55 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AnimeApiController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AnimeController;
+use App\Http\Controllers\StreamProxyController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 
-Route::get('/', [HomeController::class, 'index']);
+// Public routes
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index']);
 
-Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Anime browsing & streaming
+Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
+Route::get('/anime/{id}', [AnimeController::class, 'show'])->name('anime.show');
+Route::get('/watch/{id}/{episode}', [AnimeController::class, 'watch'])->name('watch.show');
+Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
 
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
+// Stream proxy for referer support
+Route::get('/stream-proxy/{id}/{episode}', [StreamProxyController::class, 'proxy'])->name('stream.proxy');
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
-
-Route::get('/watch', function () {
-    return view('auth.watchlist');
+// Guest only routes (redirect to home if already authenticated)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+    
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 });
 
-Route::get('/dashboard', function () {
-    return view('auth.dashboard');
+// Authenticated routes
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+    
+    Route::get('/watchlist', function () {
+        return view('auth.watchlist');
+    })->name('watchlist');
 });
+
+// Admin only routes
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('auth.dashboard');
+    })->name('dashboard');
+});
+
+// test routes for static pages
+Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
+Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
+    ->name('pages.checkout');
+Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+// Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
+// Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
+//     ->name('pages.checkout');
+// Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
