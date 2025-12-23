@@ -1,51 +1,92 @@
 <x-layout title="Checkout">
-    <main class="flex-1 container mx-auto max-w-7xl p-4 md:p-6 text-white min-h-screen">
-        <div class="max-w-6xl mx-auto py-12 px-6">
-            <h2 class="text-2xl font-bold mb-8">Checkout</h2>
+    <main class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+        <div class="container mx-auto max-w-7xl px-4 py-12">
 
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Form -->
-                <div class="bg-white/5 backdrop-blur-sm p-6 rounded-xl shadow border border-white/6">
-                    <h3 class="font-semibold mb-4">Detail Pembayaran</h3>
+            <!-- Title -->
+            <h2 class="text-3xl font-bold mb-10">Checkout</h2>
 
-                    <form>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium">Nama Lengkap</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2 mt-1 bg-white/5 text-white">
+            <div class="grid gap-8 md:grid-cols-2">
+
+                <!-- FORM PEMBAYARAN -->
+                <div class="rounded-2xl bg-white/10 backdrop-blur-md p-6 shadow-lg border border-white/10">
+                    <h3 class="text-lg font-semibold mb-6">Detail Pembayaran</h3>
+
+                    <form class="space-y-5">
+                        <!-- Nama -->
+                        <div>
+                            <label class="block text-sm mb-1 text-white/80">
+                                Nama Lengkap
+                            </label>
+                            <input
+                                type="text"
+                                class="w-full rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="Masukkan nama lengkap"
+                            >
                         </div>
 
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium">Email</label>
-                            <input type="email" class="w-full border rounded-lg px-3 py-2 mt-1 bg-white/5 text-white">
+                        <!-- Email -->
+                        <div>
+                            <label class="block text-sm mb-1 text-white/80">
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                class="w-full rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="email@example.com"
+                            >
                         </div>
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium">Metode Pembayaran</label>
-                            <select class="w-full border rounded-lg px-3 py-2 mt-1 bg-white/5 text-white">
-                                <option>Transfer Bank</option>
-                                <option>E-Wallet</option>
-                                <option>Kartu Kredit</option>
+                        <!-- Metode -->
+                        <div>
+                            <label class="block text-sm mb-1 text-white/80">
+                                Metode Pembayaran
+                            </label>
+                            <select
+                                class="w-full rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                            >
+                                <option class="bg-slate-800">Transfer Bank</option>
+                                <option class="bg-slate-800">E-Wallet</option>
+                                <option class="bg-slate-800">Kartu Kredit</option>
                             </select>
                         </div>
 
-                        <button class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
+                        <!-- Button -->
+                        <button
+                            type="submit"
+                            class="w-full rounded-lg bg-green-600 py-3 font-semibold hover:bg-green-700 transition"
+                        >
                             Bayar Sekarang
                         </button>
                     </form>
                 </div>
 
-                <!-- Summary -->
-                <div class="bg-white/3 p-6 rounded-xl shadow border border-white/6">
-                    <h3 class="font-semibold mb-4">Ringkasan Pesanan</h3>
-                    <p>Paket: <strong class="capitalize text-white">{{ $plan }}</strong></p>
-                    <p>Harga: Rp50.000</p>
-                    <hr class="my-4 border-white/10">
-                    <p class="text-lg font-bold">Total: Rp50.000</p>
+                <!-- RINGKASAN -->
+                <div class="rounded-2xl bg-white/5 p-6 shadow-lg border border-white/10">
+                    <h3 class="text-lg font-semibold mb-6">Ringkasan Pesanan</h3>
+
+                    <div class="space-y-3 text-white/90">
+                        <div class="flex justify-between">
+                            <span>Paket</span>
+                            <span class="capitalize font-medium">
+                                {{ $plan }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <span>Harga</span>
+                            <span>Rp50.000</span>
+                        </div>
+                    </div>
+
+                    <hr class="my-5 border-white/10">
+
+                    <div class="flex justify-between text-lg font-bold">
+                        <span>Total</span>
+                        <span>Rp50.000</span>
+                    </div>
                 </div>
+
             </div>
         </div>
     </main>
-
-    </main>
-
 </x-layout>
