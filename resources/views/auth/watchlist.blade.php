@@ -1,4 +1,8 @@
 <x-layout title="My Watchlist">
+    @push('head')
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+    @endpush
+
     @push('styles')
     @endpush
 
@@ -55,22 +59,26 @@
         <!-- Watchlist Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             
-            @forelse(range(1, 12) as $index)
+            @forelse($watchlists as $watchlist)
             <!-- Anime Card -->
             <div class="group relative bg-[#352c6a] rounded-lg overflow-hidden hover:shadow-lg hover:shadow-[#8b7cf6]/20 transition-all duration-300">
                 <!-- Poster -->
                 <div class="aspect-[2/3] bg-gradient-to-br from-[#4a3f7a] to-[#352c6a] relative overflow-hidden">
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-image text-6xl text-[#6d5bd0] opacity-50"></i>
-                    </div>
+                    @if($watchlist->poster_path)
+                        <img src="{{ $watchlist->poster_path }}" alt="{{ $watchlist->anime_title }}" class="w-full h-full object-cover">
+                    @else
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-image text-6xl text-[#6d5bd0] opacity-50"></i>
+                        </div>
+                    @endif
                     
                     <!-- Hover Overlay -->
                     <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                         <div class="text-center space-y-3">
-                            <button class="px-4 py-2 bg-[#8b7cf6] hover:bg-[#7a6ae5] text-white rounded-lg text-sm transition-colors">
+                            <a href="{{ url('/anime', $watchlist->identifier_id) }}" class="inline-block px-4 py-2 bg-[#8b7cf6] hover:bg-[#7a6ae5] text-white rounded-lg text-sm transition-colors">
                                 <i class="fas fa-play mr-2"></i>Watch
-                            </button>
-                            <button class="block w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors">
+                            </a>
+                            <button class="block w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm transition-colors remove-from-watchlist" data-id="{{ $watchlist->id }}">
                                 <i class="fas fa-trash mr-2"></i>Remove
                             </button>
                         </div>
@@ -85,7 +93,7 @@
                 <!-- Info -->
                 <div class="p-3">
                     <h3 class="font-semibold text-sm text-[#f2f1ff] line-clamp-2 mb-1">
-                        Anime Title {{ $index }}
+                        {{ $watchlist->anime_title }}
                     </h3>
                     <div class="flex items-center justify-between text-xs text-[#c7c4f3]">
                         <span class="flex items-center">
@@ -126,5 +134,36 @@
         </div>
 
     </main>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // Handle remove from watchlist
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.remove-from-watchlist')) {
+                        e.preventDefault();
+                        const btn = e.target.closest('.remove-from-watchlist');
+                        const id = btn.dataset.id;
+
+                        if (confirm('Remove from watchlist?')) {
+                            fetch(`/watchlist/${id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.message === 'Removed from watchlist') {
+                                    btn.closest('.group').remove();
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        }
+                    }
+                });
+            });
+        </script>
+    @endpush
 
 </x-layout>

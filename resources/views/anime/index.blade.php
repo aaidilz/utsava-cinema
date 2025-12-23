@@ -79,4 +79,4 @@
         </script>
     @endpush
     
-</x-layout>
+</x-layout> 
