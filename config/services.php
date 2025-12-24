@@ -39,4 +39,27 @@ return [
         'endpoint' => env('API_ENDPOINT'),
     ],
 
+    'firebase' => [
+        // Used by the frontend (Firebase JS SDK)
+        'web' => [
+            'apiKey' => env('FIREBASE_WEB_API_KEY'),
+            'authDomain' => env('FIREBASE_WEB_AUTH_DOMAIN'),
+            'projectId' => env('FIREBASE_WEB_PROJECT_ID'),
+            'storageBucket' => env('FIREBASE_WEB_STORAGE_BUCKET'),
+            'messagingSenderId' => env('FIREBASE_WEB_MESSAGING_SENDER_ID'),
+            'appId' => env('FIREBASE_WEB_APP_ID'),
+        ],
+
+        // Used by the backend (kreait/laravel-firebase)
+        'credentials' => env('FIREBASE_CREDENTIALS'),
+    ],
+
+    'midtrans' => [
+        'server_key' => env('MIDTRANS_SERVER_KEY'),
+        'client_key' => env('MIDTRANS_CLIENT_KEY'),
+        'is_production' => (bool) env('MIDTRANS_IS_PRODUCTION', false),
+        'is_sanitized' => true,
+        'is_3ds' => true,
+    ],
+
 ];

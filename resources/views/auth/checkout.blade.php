@@ -58,6 +58,8 @@
                             Bayar Sekarang
                         </button>
                     </form>
+
+                    <p id="paymentError" class="hidden mt-4 text-sm text-red-200"></p>
                 </div>
 
                 <!-- RINGKASAN -->
