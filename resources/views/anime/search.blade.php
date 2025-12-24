@@ -21,18 +21,30 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 @forelse($results as $r)
                     <a href="{{ route('anime.show', $r['id']) }}" class="group relative bg-[#352c6a] rounded-lg overflow-hidden hover:shadow-lg hover:shadow-[#8b7cf6]/20 transition-all duration-300">
-                        <div class="aspect-[2/3] bg-gradient-to-br from-[#4a3f7a] to-[#352c6a]">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <i class="fas fa-image text-4xl text-[#6d5bd0] opacity-50"></i>
-                            </div>
+                        <div class="aspect-[2/3] bg-gradient-to-br from-[#4a3f7a] to-[#352c6a] relative overflow-hidden">
+                            @if(!empty($r['image']))
+                                <img src="{{ $r['image'] }}" alt="{{ $r['title'] ?? ($r['name'] ?? 'Anime') }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
+                            @else
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <i class="fas fa-image text-4xl text-[#6d5bd0] opacity-50"></i>
+                                </div>
+                            @endif
                         </div>
-                        <div class="p-3">
+                        <div class="p-3 bg-[#352c6a]">
                             <h3 class="font-semibold text-sm text-[#f2f1ff] line-clamp-2 mb-1">{{ $r['title'] }}</h3>
                             <div class="flex items-center gap-1 text-xs text-[#c7c4f3]">
-                                @foreach($r['languages'] as $lang)
+                                @php($langs = is_array($r['languages'] ?? null) ? $r['languages'] : [])
+                                @forelse($langs as $lang)
                                     <span class="px-2 py-0.5 bg-[#4a3f7a] text-[#f2f1ff] rounded">{{ strtoupper($lang) }}</span>
-                                @endforeach
+                                @empty
+                                    <span class="px-2 py-0.5 bg-[#4a3f7a] text-[#f2f1ff] rounded">-</span>
+                                @endforelse
                             </div>
+                            @if(!empty($r['episodes']))
+                                <div class="text-xs text-[#c7c4f3] mt-2">
+                                    <span class="px-2 py-0.5 bg-[#4a3f7a] text-[#f2f1ff] rounded">{{ $r['episodes'] }} eps</span>
+                                </div>
+                            @endif
                         </div>
                     </a>
                 @empty

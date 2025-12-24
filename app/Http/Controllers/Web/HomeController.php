@@ -74,14 +74,24 @@ class HomeController extends Controller
                         }
 
                         $normalized[] = [
-                            // API may use `identifier`, `id` or similar
-                            'id' => $it['identifier'] ?? $it['id'] ?? null,
-                            // API example uses `name` for title
-                            'title' => $it['title'] ?? ($it['name'] ?? ''),
-                            // API example uses `image`
-                            'cover' => $it['cover_image'] ?? $it['image'] ?? ($it['poster'] ?? null),
-                            'year' => $it['release_year'] ?? null,
+                            // OpenAPI keys
+                            'identifier' => (string) ($it['identifier'] ?? ($it['id'] ?? '')),
+                            'name' => (string) ($it['name'] ?? ($it['title'] ?? '')),
+                            'image' => $it['image'] ?? ($it['cover_image'] ?? ($it['poster'] ?? null)),
+                            'languages' => is_array($it['languages'] ?? null) ? $it['languages'] : [],
+                            'genres' => is_array($it['genres'] ?? null) ? $it['genres'] : [],
+                            'total_episode' => $it['total_episode'] ?? ($it['episodes'] ?? null),
                             'rating_score' => $it['rating_score'] ?? null,
+                            'rating_classification' => $it['rating_classification'] ?? null,
+                            'release_year' => $it['release_year'] ?? null,
+
+                            // Aliases used by current Blade templates
+                            'id' => (string) ($it['identifier'] ?? ($it['id'] ?? '')),
+                            'title' => (string) ($it['name'] ?? ($it['title'] ?? '')),
+                            'cover' => $it['image'] ?? ($it['cover_image'] ?? ($it['poster'] ?? null)),
+                            'year' => $it['release_year'] ?? null,
+                            'episodes' => $it['total_episode'] ?? ($it['episodes'] ?? null),
+                            'rating' => $it['rating_score'] ?? null,
                             
                         ];
                     }

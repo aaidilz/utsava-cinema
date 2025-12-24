@@ -80,7 +80,7 @@
                                             
                                             {{-- FIX 3: Gunakan aspect-[2/3] (Syntax JIT yang benar) --}}
                                             <div class="aspect-2/3 w-full overflow-hidden relative">
-                                                   <img src="{{ $item['image'] ?? $item['cover'] ?? 'https://via.placeholder.com/200x300?text=No+Image' }}" 
+                                                                                                     <img src="{{ $item['image'] ?? ($item['cover'] ?? 'https://via.placeholder.com/200x300?text=No+Image') }}" 
                                                      alt="{{ $item['title'] ?? 'Anime' }}" 
                                                      loading="lazy"
                                                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 ease-in-out">
@@ -111,7 +111,7 @@
                                                         <span class="text-xs text-gray-400">•</span>
                                                         <span class="text-xs text-gray-400">{{ $item['total_episode'] ?? ($item['episodes'] ?? '-') }} eps</span>
                                                     </div>
-                                                    <div class="text-xs text-gray-400">{{ $item['year'] ?? '' }}</div>
+                                                    <div class="text-xs text-gray-400">{{ $item['release_year'] ?? ($item['year'] ?? '') }}</div>
                                                 </div>
                                             </div>
                                         </div>

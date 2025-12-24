@@ -66,8 +66,170 @@
     
 
     @push('scripts')
+    @php
+        $watchContext = [
+            'animeId' => $animeId,
+            'episodeNumber' => (string) $episodeNumber,
+            'language' => $language,
+            'progressShowUrl' => route('watch.progress.show', [$animeId, $episodeNumber]) . '?language=' . $language,
+            'progressUpdateUrl' => route('watch.progress.update', [$animeId, $episodeNumber]),
+        ];
+
+        $watchJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT;
+    @endphp
+    <script type="application/json" id="watch-context-json">{!! json_encode($watchContext, $watchJsonFlags) !!}</script>
+    <script type="application/json" id="watch-streams-json">{!! json_encode($streams, $watchJsonFlags) !!}</script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            const ctxEl = document.getElementById('watch-context-json');
+            const streamsEl = document.getElementById('watch-streams-json');
+            const ctx = ctxEl ? JSON.parse(ctxEl.textContent || '{}') : {};
+            const streams = streamsEl ? JSON.parse(streamsEl.textContent || '[]') : [];
+
+            const lsKeys = {
+                progress: `watch:progress:${ctx.animeId}:${ctx.episodeNumber}:${ctx.language}`,
+                quality: `watch:quality:${ctx.animeId}:${ctx.language}`,
+            };
+
+            function safeJsonParse(value) {
+                try {
+                    return JSON.parse(value);
+                } catch {
+                    return null;
+                }
+            }
+
+            function nowIso() {
+                return new Date().toISOString();
+            }
+
+            function pickStream(streamButtons, preferredResolution) {
+                if (!streamButtons.length) return null;
+                if (!preferredResolution) return streamButtons[0];
+
+                const exact = streamButtons.find(b => parseInt(b.dataset.resolution) === preferredResolution);
+                if (exact) return exact;
+
+                // Prefer next-lower resolution if exact not available
+                const sorted = [...streamButtons].sort((a, b) => parseInt(b.dataset.resolution) - parseInt(a.dataset.resolution));
+                const lowerOrEqual = sorted.find(b => parseInt(b.dataset.resolution) <= preferredResolution);
+                return lowerOrEqual || sorted[0];
+            }
+
+            function setActiveQualityButton(activeBtn) {
+                const qualityBtns = document.querySelectorAll('.quality-btn');
+                qualityBtns.forEach(b => {
+                    b.classList.remove('bg-[#8b7cf6]', 'text-white');
+                    b.classList.add('bg-[#4a3f7a]', 'text-[#c7c4f3]');
+                });
+                if (activeBtn) {
+                    activeBtn.classList.remove('bg-[#4a3f7a]', 'text-[#c7c4f3]');
+                    activeBtn.classList.add('bg-[#8b7cf6]', 'text-white');
+                }
+            }
+
+            function urlForButton(btn) {
+                const proxyUrl = btn?.dataset.proxyUrl || '';
+                const directUrl = btn?.dataset.directUrl || '';
+                // Prefer same-origin proxy for consistent seek/buffering.
+                return proxyUrl || directUrl;
+            }
+
+            function readLocalProgress() {
+                const raw = localStorage.getItem(lsKeys.progress);
+                const parsed = safeJsonParse(raw);
+                if (!parsed || typeof parsed !== 'object') return null;
+
+                const position = Number(parsed.position);
+                if (!Number.isFinite(position) || position < 0) return null;
+
+                return {
+                    position,
+                    duration: Number.isFinite(Number(parsed.duration)) ? Number(parsed.duration) : null,
+                    resolution: Number.isFinite(Number(parsed.resolution)) ? Number(parsed.resolution) : null,
+                    updated_at: typeof parsed.updated_at === 'string' ? parsed.updated_at : null,
+                };
+            }
+
+            function writeLocalProgress(progress) {
+                localStorage.setItem(lsKeys.progress, JSON.stringify({
+                    position: progress.position,
+                    duration: progress.duration ?? null,
+                    resolution: progress.resolution ?? null,
+                    updated_at: progress.updated_at ?? nowIso(),
+                }));
+            }
+
+            function readLocalQuality() {
+                const raw = localStorage.getItem(lsKeys.quality);
+                const res = Number(raw);
+                return Number.isFinite(res) ? res : null;
+            }
+
+            function writeLocalQuality(resolution) {
+                if (!Number.isFinite(resolution)) return;
+                localStorage.setItem(lsKeys.quality, String(resolution));
+            }
+
+            let lastSavedSecond = -1;
+            let saveTimer = null;
+            async function saveProgressToServer(payload) {
+                try {
+                    await fetch(ctx.progressUpdateUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
+                        },
+                        body: JSON.stringify({
+                            position: payload.position,
+                            duration: payload.duration ?? null,
+                            resolution: payload.resolution ?? null,
+                            language: ctx.language,
+                        }),
+                        keepalive: true,
+                    });
+                } catch {
+                    // ignore network errors; localStorage still works
+                }
+            }
+
+            function scheduleSave(progress) {
+                // debounce writes (like YouTube): write at most every ~3s
+                if (saveTimer) return;
+                saveTimer = setTimeout(async () => {
+                    saveTimer = null;
+                    await saveProgressToServer(progress);
+                }, 3000);
+            }
+
+            async function fetchServerProgress() {
+                try {
+                    const resp = await fetch(ctx.progressShowUrl, {
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'same-origin',
+                    });
+                    if (!resp.ok) return null;
+                    const data = await resp.json();
+                    return {
+                        position: Number(data.position) || 0,
+                        duration: data.duration != null ? Number(data.duration) : null,
+                        resolution: data.resolution != null ? Number(data.resolution) : null,
+                        updated_at: typeof data.updated_at === 'string' ? data.updated_at : null,
+                    };
+                } catch {
+                    return null;
+                }
+            }
+
+            function newerProgress(a, b) {
+                const at = a?.updated_at ? Date.parse(a.updated_at) : 0;
+                const bt = b?.updated_at ? Date.parse(b.updated_at) : 0;
+                return at >= bt ? a : b;
+            }
             
             // Initialize Video.js player
             const player = videojs('videoPlayer', {
@@ -80,24 +242,47 @@
 
             // Get quality buttons and streams
             const qualityBtns = document.querySelectorAll('.quality-btn');
-            const streams = @json($streams);
             let currentResolution = streams[0]?.resolution || 1080;
 
-            // Load initial stream (highest quality)
-            if (streams.length > 0) {
-                const firstBtn = qualityBtns[0];
-                const proxyUrl = firstBtn?.dataset.proxyUrl || '';
-                const directUrl = firstBtn?.dataset.directUrl || '';
-                const hasReferer = firstBtn?.dataset.hasReferer === 'true';
-                
-                // Use direct if no referer, otherwise use proxy
-                const initialUrl = !hasReferer ? directUrl : proxyUrl;
-                
-                player.src({
-                    type: 'video/mp4',
-                    src: initialUrl
-                });
-            }
+            // Load initial stream (remembered quality if available)
+            (async function init() {
+                const serverProgress = await fetchServerProgress();
+                const localProgress = readLocalProgress();
+                const bestProgress = newerProgress(localProgress, serverProgress) || localProgress || serverProgress;
+
+                // Determine preferred resolution priority: query/server/local quality
+                const localQuality = readLocalQuality();
+                const preferredResolution = Number.isFinite(localQuality)
+                    ? localQuality
+                    : (Number.isFinite(bestProgress?.resolution) ? bestProgress.resolution : null);
+
+                const btns = Array.from(qualityBtns);
+                const chosenBtn = pickStream(btns, preferredResolution);
+
+                if (chosenBtn) {
+                    const chosenResolution = parseInt(chosenBtn.dataset.resolution);
+                    currentResolution = Number.isFinite(chosenResolution) ? chosenResolution : currentResolution;
+                    setActiveQualityButton(chosenBtn);
+                    writeLocalQuality(currentResolution);
+
+                    player.src({
+                        type: 'video/mp4',
+                        src: urlForButton(chosenBtn),
+                    });
+
+                    // Resume from last saved position
+                    const resumeAt = Number(bestProgress?.position) || 0;
+                    if (resumeAt > 0) {
+                        player.one('loadedmetadata', function() {
+                            const duration = player.duration();
+                            const safeResumeAt = (Number.isFinite(duration) && duration > 0)
+                                ? Math.min(resumeAt, Math.max(0, duration - 5))
+                                : resumeAt;
+                            player.currentTime(safeResumeAt);
+                        });
+                    }
+                }
+            })();
             
             // Add error event listener
             player.on('error', function(e) {
@@ -109,23 +294,13 @@
             qualityBtns.forEach((btn, index) => {
                 btn.addEventListener('click', function() {
                     const resolution = parseInt(this.dataset.resolution);
-                    const proxyUrl = this.dataset.proxyUrl;
-                    const directUrl = this.dataset.directUrl;
-                    const hasReferer = this.dataset.hasReferer === 'true';
-                    
-                    // Choose URL: direct if no referer, otherwise proxy
-                    const url = !hasReferer ? directUrl : proxyUrl;
+                    const url = urlForButton(this);
                     
                     const currentTime = player.currentTime();
                     const wasPaused = player.paused();
 
                     // Update active button
-                    qualityBtns.forEach(b => {
-                        b.classList.remove('bg-[#8b7cf6]', 'text-white');
-                        b.classList.add('bg-[#4a3f7a]', 'text-[#c7c4f3]');
-                    });
-                    this.classList.remove('bg-[#4a3f7a]', 'text-[#c7c4f3]');
-                    this.classList.add('bg-[#8b7cf6]', 'text-white');
+                    setActiveQualityButton(this);
 
                     // Change source
                     player.src({
@@ -142,8 +317,62 @@
                     });
 
                     currentResolution = resolution;
+
+                    // Persist preferred quality
+                    writeLocalQuality(currentResolution);
+                    writeLocalProgress({
+                        position: Number.isFinite(currentTime) ? currentTime : 0,
+                        duration: Number.isFinite(player.duration()) ? player.duration() : null,
+                        resolution: currentResolution,
+                        updated_at: nowIso(),
+                    });
+                    scheduleSave({
+                        position: Number.isFinite(currentTime) ? currentTime : 0,
+                        duration: Number.isFinite(player.duration()) ? player.duration() : null,
+                        resolution: currentResolution,
+                    });
                 });
             });
+
+            // Progress saving (local + server cache) like YouTube
+            function flushProgress() {
+                const position = player.currentTime();
+                const duration = player.duration();
+                if (!Number.isFinite(position) || position < 0) return;
+
+                const payload = {
+                    position,
+                    duration: Number.isFinite(duration) ? duration : null,
+                    resolution: Number.isFinite(currentResolution) ? currentResolution : null,
+                    updated_at: nowIso(),
+                };
+
+                writeLocalProgress(payload);
+                scheduleSave(payload);
+            }
+
+            player.on('timeupdate', function() {
+                const position = player.currentTime();
+                if (!Number.isFinite(position)) return;
+
+                const second = Math.floor(position);
+                if (second === lastSavedSecond) return;
+
+                // Save roughly every 5 seconds
+                if (second % 5 === 0) {
+                    lastSavedSecond = second;
+                    flushProgress();
+                }
+            });
+
+            player.on('pause', flushProgress);
+            player.on('ended', flushProgress);
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'hidden') {
+                    flushProgress();
+                }
+            });
+            window.addEventListener('pagehide', flushProgress);
 
             // Keyboard shortcuts
             document.addEventListener('keydown', function(e) {

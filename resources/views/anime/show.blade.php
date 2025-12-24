@@ -13,12 +13,13 @@
                 @endif
                 <h1 class="text-2xl font-bold mb-2">{{ $anime['title'] ?? 'Unknown Title' }}</h1>
                 <div class="text-[#c7c4f3] space-y-1 text-sm">
-                    <p><span class="font-semibold">Year:</span> {{ $anime['release_year'] ?? '—' }}</p>
-                    <p><span class="font-semibold">Rating:</span> {{ $anime['rating'] ?? '—' }}</p>
+                    <p><span class="font-semibold">Year:</span> {{ $anime['release_year'] ?? ($anime['year'] ?? '—') }}</p>
+                    <p><span class="font-semibold">Rating:</span> {{ $anime['rating_score'] ?? ($anime['rating'] ?? '—') }}</p>
                     <p><span class="font-semibold">Genres:</span> {{ implode(', ', $anime['genres'] ?? []) }}</p>
-                    <p><span class="font-semibold">Episodes:</span> {{ $anime['episodes'] ?? '—' }}</p>
-                    @if(!empty($anime['aliases']))
-                        <p><span class="font-semibold">Also known as:</span> {{ implode(', ', $anime['aliases']) }}</p>
+                    <p><span class="font-semibold">Episodes:</span> {{ $anime['total_episode'] ?? ($anime['episodes'] ?? '—') }}</p>
+                    @php($alts = $anime['alternative_names'] ?? ($anime['aliases'] ?? []))
+                    @if(!empty($alts))
+                        <p><span class="font-semibold">Also known as:</span> {{ implode(', ', $alts) }}</p>
                     @endif
                 </div>
             </div>
@@ -36,8 +37,15 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 @foreach($episodes as $ep)
                     <a href="{{ route('watch.show', [$anime['id'], $ep['number']]) }}" class="group bg-[#352c6a] rounded-lg overflow-hidden">
-                        <div class="aspect-video bg-gradient-to-br from-[#4a3f7a] to-[#352c6a] flex items-center justify-center">
-                            <i class="fas fa-film text-3xl text-[#6d5bd0] opacity-60"></i>
+                        <div class="aspect-video relative overflow-hidden bg-gradient-to-br from-[#4a3f7a] to-[#352c6a]">
+                            @php($thumb = $ep['thumbnail'] ?? $anime['image'] ?? null)
+                            @if(!empty($thumb))
+                                <img src="{{ $thumb }}" alt="Episode {{ $ep['number'] }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
+                            @else
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <i class="fas fa-film text-3xl text-[#6d5bd0] opacity-60"></i>
+                                </div>
+                            @endif
                         </div>
                         <div class="p-3">
                             <p class="text-sm font-semibold text-[#f2f1ff]">Episode {{ $ep['number'] }}: {{ $ep['title'] }}</p>

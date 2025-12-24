@@ -13,7 +13,100 @@ class AnimeService
     public function __construct()
     {
         // Default to the provided public API if env missing
-        $this->base = rtrim(env('API_ENDPOINT'), '/');
+        $this->base = rtrim((string) env('API_ENDPOINT', ''), '/');
+    }
+
+    /**
+     * @param array<string, mixed> $raw
+     * @return array<string, mixed>
+     */
+    private function normalizeCard(array $raw): array
+    {
+        $identifier = (string) ($raw['identifier'] ?? ($raw['id'] ?? ''));
+        $name = (string) ($raw['name'] ?? ($raw['title'] ?? ''));
+
+        $image = $raw['image']
+            ?? ($raw['cover_image'] ?? ($raw['poster'] ?? ($raw['cover'] ?? null)));
+
+        $languages = $raw['languages'] ?? [];
+        if (!is_array($languages)) {
+            $languages = [];
+        }
+
+        $genres = $raw['genres'] ?? [];
+        if (!is_array($genres)) {
+            $genres = [];
+        }
+
+        $totalEpisode = $raw['total_episode'] ?? ($raw['total_episodes'] ?? ($raw['episodes'] ?? null));
+        $ratingScore = $raw['rating_score'] ?? ($raw['rating'] ?? null);
+
+        return [
+            // OpenAPI keys
+            'identifier' => $identifier,
+            'name' => $name,
+            'image' => $image,
+            'languages' => $languages,
+            'genres' => $genres,
+            'total_episode' => $totalEpisode,
+            'rating_score' => $ratingScore,
+            'rating_classification' => $raw['rating_classification'] ?? null,
+
+            // Backward-compatible aliases used by views/routes
+            'id' => $identifier,
+            'title' => $name,
+            'episodes' => $totalEpisode,
+            'rating' => $ratingScore,
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $raw
+     * @param string $identifier
+     * @return array<string, mixed>
+     */
+    private function normalizeInfo(array $raw, string $identifier): array
+    {
+        $name = (string) ($raw['name'] ?? ($raw['title'] ?? ''));
+        $image = $raw['image'] ?? ($raw['cover_image'] ?? ($raw['poster'] ?? null));
+
+        $genres = $raw['genres'] ?? [];
+        if (!is_array($genres)) {
+            $genres = [];
+        }
+
+        $alternativeNames = $raw['alternative_names'] ?? ($raw['aliases'] ?? []);
+        if (!is_array($alternativeNames)) {
+            $alternativeNames = [];
+        }
+
+        $releaseYear = $raw['release_year'] ?? ($raw['year'] ?? null);
+        $totalEpisode = $raw['total_episode'] ?? ($raw['total_episodes'] ?? ($raw['episodes'] ?? null));
+        $ratingScore = $raw['rating_score'] ?? ($raw['rating'] ?? null);
+
+        return [
+            // OpenAPI-ish keys
+            'identifier' => $identifier,
+            'name' => $name,
+            'image' => $image,
+            'genres' => $genres,
+            'synopsis' => $raw['synopsis'] ?? null,
+            'release_year' => $releaseYear,
+            'status' => $raw['status'] ?? null,
+            'alternative_names' => $alternativeNames,
+            'total_episode' => $totalEpisode,
+            'rating_score' => $ratingScore,
+            'rating_count' => $raw['rating_count'] ?? null,
+            'rating_classification' => $raw['rating_classification'] ?? null,
+
+            // Backward-compatible aliases used by existing views
+            'id' => $identifier,
+            'title' => $name,
+            'year' => $releaseYear,
+            'aliases' => $alternativeNames,
+            'episodes' => $totalEpisode,
+            'rating' => $ratingScore,
+        ];
     }
 
     /**
@@ -30,21 +123,20 @@ class AnimeService
                 ]);
                 if ($resp->ok()) {
                     $body = $resp->json();
-                    $items = [];
-                    if (is_array($body)) {
-                        $items = $body['data'] ?? $body;
+                    if (!is_array($body)) {
+                        return [];
                     }
 
-                    return collect($items)->map(function ($it) {
-                        return [
-                            'id' => $it['identifier'] ?? $it['id'] ?? null,
-                            'title' => $it['name'] ?? ($it['title'] ?? ''),
-                            'image' => $it['image'] ?? $it['cover_image'] ?? $it['poster'] ?? null,
-                            'total_episode' => $it['total_episode'] ?? $it['episodes'] ?? null,
-                            'rating_score' => $it['rating_score'] ?? $it['rating'] ?? null,
-                            'year' => $it['release_year'] ?? null,
-                        ];
-                    })->all();
+                    $items = $body['data'] ?? $body;
+                    if (!is_array($items)) {
+                        return [];
+                    }
+
+                    return collect($items)
+                        ->filter(fn ($it) => is_array($it))
+                        ->map(fn ($it) => $this->normalizeCard($it))
+                        ->values()
+                        ->all();
                 }
             } catch (\Throwable $e) {
                 Log::warning('Anime browse failed: ' . $e->getMessage());
@@ -67,15 +159,20 @@ class AnimeService
                 ]);
                 if ($resp->ok()) {
                     $json = $resp->json();
+                    if (!is_array($json)) {
+                        return [];
+                    }
+
                     $results = $json['results'] ?? [];
-                    // Normalize shape
-                    return collect($results)->map(function ($r) {
-                        return [
-                            'id' => $r['identifier'] ?? '',
-                            'title' => $r['name'] ?? '',
-                            'languages' => $r['languages'] ?? [],
-                        ];
-                    })->all();
+                    if (!is_array($results)) {
+                        return [];
+                    }
+
+                    return collect($results)
+                        ->filter(fn ($r) => is_array($r))
+                        ->map(fn ($r) => $this->normalizeCard($r))
+                        ->values()
+                        ->all();
                 }
             } catch (\Throwable $e) {
                 Log::warning('Anime search failed: ' . $e->getMessage());
@@ -94,40 +191,17 @@ class AnimeService
                 $resp = Http::get($this->base . "/anime/{$id}");
                 if ($resp->ok()) {
                     $data = $resp->json();
-                    // Normalize keys to match views
-                    return [
-                        'id' => $id,
-                        'title' => $data['name'] ?? '',
-                        'image' => $data['image'] ?? null,
-                        'genres' => $data['genres'] ?? [],
-                        'synopsis' => $data['synopsis'] ?? '',
-                        'year' => $data['release_year'] ?? null,
-                        'status' => $data['status'] ?? null,
-                        'aliases' => $data['alternative_names'] ?? [],
-                        'total_episode' => $data['total_episode'] ?? $data['total_episodes'] ?? null,
-                        'rating_score' => $data['rating_score'] ?? null,
-                        'rating_count' => $data['rating_count'] ?? null,
-                        'rating_classification' => $data['rating_classification'] ?? null,
-                    ];
+                    if (!is_array($data)) {
+                        return $this->normalizeInfo([], $id);
+                    }
+
+                    return $this->normalizeInfo($data, $id);
                 }
             } catch (\Throwable $e) {
                 Log::warning('Anime detail fetch failed: ' . $e->getMessage());
             }
             // If API failed, return an empty/nullable shape instead of mock data
-            return [
-                'id' => $id,
-                'title' => '',
-                'image' => null,
-                'genres' => [],
-                'synopsis' => '',
-                'year' => null,
-                'status' => null,
-                'aliases' => [],
-                'total_episode' => null,
-                'rating_score' => null,
-                'rating_count' => null,
-                'rating_classification' => null,
-            ];
+            return $this->normalizeInfo([], $id);
         });
     }
 
