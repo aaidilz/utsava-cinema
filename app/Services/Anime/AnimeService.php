@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Anime;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -21,8 +21,36 @@ class AnimeService
      */
     public function getList(): array
     {
-        // No generic browse endpoint in the reference API; guide users to search.
-        return $this->mockList();
+        $key = 'anime_browse_list';
+        return Cache::remember($key, 60 * 10, function () {
+            try {
+                $resp = Http::get($this->base . '/anime/browse', [
+                    'page' => 1,
+                    'limit' => 24,
+                ]);
+                if ($resp->ok()) {
+                    $body = $resp->json();
+                    $items = [];
+                    if (is_array($body)) {
+                        $items = $body['data'] ?? $body;
+                    }
+
+                    return collect($items)->map(function ($it) {
+                        return [
+                            'id' => $it['identifier'] ?? $it['id'] ?? null,
+                            'title' => $it['name'] ?? ($it['title'] ?? ''),
+                            'image' => $it['image'] ?? $it['cover_image'] ?? $it['poster'] ?? null,
+                            'total_episode' => $it['total_episode'] ?? $it['episodes'] ?? null,
+                            'rating_score' => $it['rating_score'] ?? $it['rating'] ?? null,
+                            'year' => $it['release_year'] ?? null,
+                        ];
+                    })->all();
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Anime browse failed: ' . $e->getMessage());
+            }
+            return [];
+        });
     }
 
     /**
@@ -76,12 +104,30 @@ class AnimeService
                         'year' => $data['release_year'] ?? null,
                         'status' => $data['status'] ?? null,
                         'aliases' => $data['alternative_names'] ?? [],
+                        'total_episode' => $data['total_episode'] ?? $data['total_episodes'] ?? null,
+                        'rating_score' => $data['rating_score'] ?? null,
+                        'rating_count' => $data['rating_count'] ?? null,
+                        'rating_classification' => $data['rating_classification'] ?? null,
                     ];
                 }
             } catch (\Throwable $e) {
                 Log::warning('Anime detail fetch failed: ' . $e->getMessage());
             }
-            return $this->mockDetail($id);
+            // If API failed, return an empty/nullable shape instead of mock data
+            return [
+                'id' => $id,
+                'title' => '',
+                'image' => null,
+                'genres' => [],
+                'synopsis' => '',
+                'year' => null,
+                'status' => null,
+                'aliases' => [],
+                'total_episode' => null,
+                'rating_score' => null,
+                'rating_count' => null,
+                'rating_classification' => null,
+            ];
         });
     }
 
@@ -113,7 +159,7 @@ class AnimeService
             } catch (\Throwable $e) {
                 Log::warning('Anime episodes fetch failed: ' . $e->getMessage());
             }
-            return $this->mockEpisodes($id);
+            return [];
         });
     }
 
@@ -149,7 +195,7 @@ class AnimeService
             } catch (\Throwable $e) {
                 Log::warning('Anime streams fetch failed: ' . $e->getMessage());
             }
-            return $this->mockStreams();
+            return [];
         });
     }
 
@@ -166,64 +212,5 @@ class AnimeService
         return 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4';
     }
 
-    protected function mockStreams(): array
-    {
-        return [
-            [
-                'url' => 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_1MB.mp4',
-                'resolution' => 1080,
-                'language' => 'sub',
-                'referer' => null,
-                'subtitle' => null,
-            ],
-            [
-                'url' => 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
-                'resolution' => 720,
-                'language' => 'sub',
-                'referer' => null,
-                'subtitle' => null,
-            ],
-        ];
-    }
-
-    // --- Mock helpers ---
-    protected function mockList(): array
-    {
-        return collect(range(1, 12))->map(function ($i) {
-            return [
-                'id' => (string)$i,
-                'title' => "Sample Anime {$i}",
-                'poster' => null,
-                'rating' => 8.1 + ($i % 3) * 0.2,
-                'episodes' => 12,
-            ];
-        })->all();
-    }
-
-    protected function mockDetail(string $id): array
-    {
-        return [
-            'id' => $id,
-            'title' => "Sample Anime {$id}",
-            'poster' => null,
-            'synopsis' => 'This is a placeholder synopsis for the sample anime. It describes plot, characters, and themes.',
-            'genres' => ['Action', 'Adventure'],
-            'rating' => 8.5,
-            'year' => 2023,
-            'episodes' => 12,
-        ];
-    }
-
-    protected function mockEpisodes(string $id): array
-    {
-        return collect(range(1, 12))->map(function ($ep) use ($id) {
-            return [
-                'id' => $id . '-' . $ep,
-                'number' => $ep,
-                'title' => "Episode {$ep}",
-                'thumbnail' => null,
-                'duration' => '24m',
-            ];
-        })->all();
-    }
+    // Mock helpers removed to avoid showing placeholder data.
 }

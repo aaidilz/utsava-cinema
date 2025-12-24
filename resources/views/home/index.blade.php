@@ -80,7 +80,7 @@
                                             
                                             {{-- FIX 3: Gunakan aspect-[2/3] (Syntax JIT yang benar) --}}
                                             <div class="aspect-2/3 w-full overflow-hidden relative">
-                                                <img src="{{ $item['cover'] ?? 'https://via.placeholder.com/200x300?text=No+Image' }}" 
+                                                   <img src="{{ $item['image'] ?? $item['cover'] ?? 'https://via.placeholder.com/200x300?text=No+Image' }}" 
                                                      alt="{{ $item['title'] ?? 'Anime' }}" 
                                                      loading="lazy"
                                                      class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 ease-in-out">
@@ -100,9 +100,18 @@
                                                 <h4 class="font-bold text-sm text-white line-clamp-1 group-hover:text-[#c7c4f3] transition-colors" title="{{ $item['title'] ?? '' }}">
                                                     {{ $item['title'] ?? 'Unknown Title' }}
                                                 </h4>
-                                                <div class="flex justify-between items-center mt-1 text-xs text-gray-400">
-                                                    <span>{{ $item['type'] ?? 'TV' }}</span>
-                                                    <span>{{ $item['year'] ?? '' }}</span>
+                                                <div class="flex items-center justify-between gap-2 mt-2">
+                                                    <div class="text-xs text-gray-400 flex items-center gap-3">
+                                                        <span class="flex items-center gap-1">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.447a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.447a1 1 0 00-1.176 0l-3.37 2.447c-.784.57-1.839-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z" />
+                                                            </svg>
+                                                            <span>{{ $item['rating_score'] ?? ($item['rating'] ?? '-') }}</span>
+                                                        </span>
+                                                        <span class="text-xs text-gray-400">•</span>
+                                                        <span class="text-xs text-gray-400">{{ $item['total_episode'] ?? ($item['episodes'] ?? '-') }} eps</span>
+                                                    </div>
+                                                    <div class="text-xs text-gray-400">{{ $item['year'] ?? '' }}</div>
                                                 </div>
                                             </div>
                                         </div>

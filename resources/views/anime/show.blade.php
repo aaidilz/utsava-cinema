@@ -13,7 +13,7 @@
                 @endif
                 <h1 class="text-2xl font-bold mb-2">{{ $anime['title'] ?? 'Unknown Title' }}</h1>
                 <div class="text-[#c7c4f3] space-y-1 text-sm">
-                    <p><span class="font-semibold">Year:</span> {{ $anime['year'] ?? '—' }}</p>
+                    <p><span class="font-semibold">Year:</span> {{ $anime['release_year'] ?? '—' }}</p>
                     <p><span class="font-semibold">Rating:</span> {{ $anime['rating'] ?? '—' }}</p>
                     <p><span class="font-semibold">Genres:</span> {{ implode(', ', $anime['genres'] ?? []) }}</p>
                     <p><span class="font-semibold">Episodes:</span> {{ $anime['episodes'] ?? '—' }}</p>

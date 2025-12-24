@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
@@ -79,10 +80,9 @@ class HomeController extends Controller
                             'title' => $it['title'] ?? ($it['name'] ?? ''),
                             // API example uses `image`
                             'cover' => $it['cover_image'] ?? $it['image'] ?? ($it['poster'] ?? null),
-                            'languages' => $it['languages'] ?? [],
-                            // include genres if available for future use
-                            'genres' => $it['genres'] ?? [],
-                            'raw' => $it,
+                            'year' => $it['release_year'] ?? null,
+                            'rating_score' => $it['rating_score'] ?? null,
+                            
                         ];
                     }
 

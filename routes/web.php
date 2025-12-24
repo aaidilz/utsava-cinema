@@ -1,15 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AnimeApiController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\AnimeController;
-use App\Http\Controllers\StreamProxyController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\FirebaseAuthController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\Anime\AnimeController;
+use App\Http\Controllers\Auth\FirebaseAuthController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Billing\MidtransCallbackController;
+use App\Http\Controllers\Billing\PaymentController;
+use App\Http\Controllers\Stream\StreamProxyController;
+use App\Http\Controllers\Web\HomeController;
 use App\Models\Subscription;
 
 // Public routes

@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Stream;
 
-use App\Services\AnimeService;
+use App\Http\Controllers\Controller;
+use App\Services\Anime\AnimeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
