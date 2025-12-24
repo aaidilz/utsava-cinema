@@ -88,8 +88,15 @@
 
         <!-- PROFILE DROPDOWN -->
         <div class="relative group">
-          <div class="w-9 h-9 rounded-full bg-[#8b7cf6] flex items-center justify-center cursor-pointer">
-            <span class="text-white font-semibold text-sm">{{ substr(Auth::user()->name, 0, 1) }}</span>
+          @php
+            $navAvatar = Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : null;
+          @endphp
+          <div class="w-9 h-9 rounded-full bg-[#8b7cf6] overflow-hidden flex items-center justify-center cursor-pointer">
+            @if($navAvatar)
+              <img src="{{ $navAvatar }}" alt="Avatar" class="w-full h-full object-cover" />
+            @else
+              <span class="text-white font-semibold text-sm">{{ substr(Auth::user()->name, 0, 1) }}</span>
+            @endif
           </div>
           
           <!-- Dropdown Menu -->

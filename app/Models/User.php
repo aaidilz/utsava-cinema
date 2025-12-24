@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'firebase_uid',
+        'avatar',
         'role',
         'is_premium',
         'premium_until',
@@ -59,6 +60,11 @@ class User extends Authenticatable
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function latestTransaction()
+    {
+        return $this->hasOne(Transaction::class)->latestOfMany();
     }
 
     public function watchlists()

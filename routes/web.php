@@ -11,6 +11,8 @@ use App\Http\Controllers\Stream\StreamProxyController;
 use App\Http\Controllers\Stream\Watch\WatchController;
 use App\Http\Controllers\Stream\Watch\WatchProgressController;
 use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\ProfileController;
 use App\Models\Subscription;
 
 // Public routes
@@ -65,9 +67,8 @@ Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
 
 // Admin only routes
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('auth.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [AdminUserController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/users/{user}', [AdminUserController::class, 'show'])->name('admin.users.show');
 });
 
 // test routes for static pages
@@ -85,7 +86,10 @@ Route::get('/checkout/{subscription}', function (Subscription $subscription) {
 
     return view('auth.checkout', compact('subscription'));
 })->middleware('auth')->name('pages.checkout');
-Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+Route::middleware('auth')->group(function () {
+    Route::get('/settings', [ProfileController::class, 'edit'])->name('auth.settings');
+    Route::put('/settings', [ProfileController::class, 'update'])->name('auth.settings.update');
+});
 // Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
 //     ->name('pages.checkout');
