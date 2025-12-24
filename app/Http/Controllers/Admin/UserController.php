@@ -18,8 +18,18 @@ class UserController extends Controller
             $q->latest()->limit(1);
         }])->orderBy('created_at', 'desc')->paginate(20);
 
-        return view('auth.dashboard', compact('users'));
+        return view('admin.dashboard', compact('users'));
     }
+
+    public function show(User $user)
+{
+    // ambil transaksi terakhir user (optional)
+    $user->load(['transactions' => function ($q) {
+        $q->latest()->limit(1);
+    }]);
+
+    return view('admin.dashboarddetail', compact('user'));
+}
 
     // ...existing code...
 }
