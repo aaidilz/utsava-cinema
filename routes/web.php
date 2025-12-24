@@ -60,10 +60,21 @@ Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
 
 // Admin only routes
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('auth.dashboard');
-    })->name('dashboard');
+    // Dashboard handled by admin UserController@index (shows users + CRUD)
+    Route::get('/dashboard', [UserController::class, 'index'])->name('dashboard');
+
+    // Full admin users CRUD
+    Route::resource('admin/users', UserController::class)->names([
+        'index' => 'admin.users.index',
+        'create' => 'admin.users.create',
+        'store' => 'admin.users.store',
+        'show' => 'admin.users.show',
+        'edit' => 'admin.users.edit',
+        'update' => 'admin.users.update',
+        'destroy' => 'admin.users.destroy',
+    ]);
 });
+
 
 // test routes for static pages
 Route::get('/pricing', function () {
@@ -85,3 +96,13 @@ Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->nam
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
 //     ->name('pages.checkout');
 // Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+
+// ...existing code...
+
+Route::middleware('auth')->group(function () {
+    // ...existing code...
+    
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+
