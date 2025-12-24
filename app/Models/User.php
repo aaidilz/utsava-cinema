@@ -25,6 +25,7 @@ class User extends Authenticatable
         'role',
         'is_premium',
         'premium_until',
+        'avatar',
     ];
 
     /**
@@ -86,5 +87,13 @@ class User extends Authenticatable
         return $this->is_premium && 
                $this->premium_until && 
                $this->premium_until->isFuture();
+    }
+
+    public function getAvatarUrl(): string
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=8b7cf6&color=fff';
     }
 }

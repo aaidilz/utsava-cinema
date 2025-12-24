@@ -8,7 +8,7 @@ use App\Http\Controllers\StreamProxyController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Admin\UserController;
-
+use App\Http\Controllers\ProfileController;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -72,3 +72,12 @@ Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->nam
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
 //     ->name('pages.checkout');
 // Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+
+// ...existing code...
+
+Route::middleware('auth')->group(function () {
+    // ...existing code...
+    
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
