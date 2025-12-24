@@ -26,9 +26,7 @@
             <!-- Synopsis -->
             <div class="md:col-span-2 bg-[#352c6a] rounded-lg p-4">
                 <h2 class="text-xl font-bold mb-3">Synopsis</h2>
-                <p class="text-[#c7c4f3] leading-relaxed">
-                    {{ strip_tags($anime['synopsis'] ?? 'No synopsis available.') }}
-                </p>
+                <p class="text-[#c7c4f3] leading-relaxed">{{ $anime['synopsis'] ?? 'No synopsis available.' }}</p>
             </div>
         </div>
 

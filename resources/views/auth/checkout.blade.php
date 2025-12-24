@@ -1,60 +1,25 @@
 <x-layout title="Checkout">
-    <main class="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-        <div class="container mx-auto max-w-7xl px-4 py-12">
+    <main class="flex-1 container mx-auto max-w-7xl p-4 md:p-6 text-white min-h-screen">
+        <div class="max-w-6xl mx-auto py-12 px-6">
+            <h2 class="text-2xl font-bold mb-8">Checkout</h2>
 
-            <!-- Title -->
-            <h2 class="text-3xl font-bold mb-10">Checkout</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Form -->
+                <div class="bg-white/5 backdrop-blur-sm p-6 rounded-xl shadow border border-white/6">
+                    <h3 class="font-semibold mb-4">Detail Pembayaran</h3>
 
-            <div class="grid gap-8 md:grid-cols-2">
-
-                <!-- FORM PEMBAYARAN -->
-                <div class="rounded-2xl bg-white/10 backdrop-blur-md p-6 shadow-lg border border-white/10">
-                    <h3 class="text-lg font-semibold mb-6">Detail Pembayaran</h3>
-
-                    <form class="space-y-5">
-                        <!-- Nama -->
-                        <div>
-                            <label class="block text-sm mb-1 text-white/80">
-                                Nama Lengkap
-                            </label>
-                            <input
-                                type="text"
-                                class="w-full rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                placeholder="Masukkan nama lengkap"
-                            >
+                    <form id="paymentForm">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium">Nama Lengkap</label>
+                            <input type="text" value="{{ auth()->user()?->name }}" readonly class="w-full border rounded-lg px-3 py-2 mt-1 bg-white/5 text-white">
                         </div>
 
-                        <!-- Email -->
-                        <div>
-                            <label class="block text-sm mb-1 text-white/80">
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                class="w-full rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                placeholder="email@example.com"
-                            >
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium">Email</label>
+                            <input type="email" value="{{ auth()->user()?->email }}" readonly class="w-full border rounded-lg px-3 py-2 mt-1 bg-white/5 text-white">
                         </div>
 
-                        <!-- Metode -->
-                        <div>
-                            <label class="block text-sm mb-1 text-white/80">
-                                Metode Pembayaran
-                            </label>
-                            <select
-                                class="w-full rounded-lg bg-white/5 border border-white/10 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                            >
-                                <option class="bg-slate-800">Transfer Bank</option>
-                                <option class="bg-slate-800">E-Wallet</option>
-                                <option class="bg-slate-800">Kartu Kredit</option>
-                            </select>
-                        </div>
-
-                        <!-- Button -->
-                        <button
-                            type="submit"
-                            class="w-full rounded-lg bg-green-600 py-3 font-semibold hover:bg-green-700 transition"
-                        >
+                        <button id="payButton" type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">
                             Bayar Sekarang
                         </button>
                     </form>
@@ -62,33 +27,170 @@
                     <p id="paymentError" class="hidden mt-4 text-sm text-red-200"></p>
                 </div>
 
-                <!-- RINGKASAN -->
-                <div class="rounded-2xl bg-white/5 p-6 shadow-lg border border-white/10">
-                    <h3 class="text-lg font-semibold mb-6">Ringkasan Pesanan</h3>
-
-                    <div class="space-y-3 text-white/90">
-                        <div class="flex justify-between">
-                            <span>Paket</span>
-                            <span class="capitalize font-medium">
-                                {{ $plan }}
-                            </span>
-                        </div>
-
-                        <div class="flex justify-between">
-                            <span>Harga</span>
-                            <span>Rp50.000</span>
-                        </div>
-                    </div>
-
-                    <hr class="my-5 border-white/10">
-
-                    <div class="flex justify-between text-lg font-bold">
-                        <span>Total</span>
-                        <span>Rp50.000</span>
-                    </div>
+                <!-- Summary -->
+                <div class="bg-white/3 p-6 rounded-xl shadow border border-white/6">
+                    <h3 class="font-semibold mb-4">Ringkasan Pesanan</h3>
+                    <p>Paket: <strong class="capitalize text-white">{{ $subscription->name }}</strong></p>
+                    <p>Durasi: {{ (int) $subscription->duration_days }} hari</p>
+                    <p>Harga: Rp{{ number_format((float) $subscription->price, 0, ',', '.') }}</p>
+                    <hr class="my-4 border-white/10">
+                    <p class="text-lg font-bold">Total: Rp{{ number_format((float) $subscription->price, 0, ',', '.') }}</p>
                 </div>
-
             </div>
         </div>
     </main>
+
+    @php
+        $snapUrl = (bool) config('services.midtrans.is_production', false)
+            ? 'https://app.midtrans.com/snap/snap.js'
+            : 'https://app.sandbox.midtrans.com/snap/snap.js';
+    @endphp
+
+    @push('scripts')
+        <script src="{{ $snapUrl }}" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+        <script>
+            (function () {
+                const form = document.getElementById('paymentForm');
+                const payButton = document.getElementById('payButton');
+                const errorEl = document.getElementById('paymentError');
+
+                const showError = (message) => {
+                    errorEl.textContent = message;
+                    errorEl.classList.remove('hidden');
+                };
+
+                const clearError = () => {
+                    errorEl.textContent = '';
+                    errorEl.classList.add('hidden');
+                };
+
+                if (!form || !payButton || !errorEl) {
+                    return;
+                }
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    clearError();
+
+                    if (!"{{ (string) config('services.midtrans.client_key') }}") {
+                        showError('MIDTRANS_CLIENT_KEY belum di-set di environment.');
+                        return;
+                    }
+
+                    if (!window.snap) {
+                        showError('Midtrans Snap belum siap (snap.js tidak ter-load).');
+                        return;
+                    }
+
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    if (!csrfToken) {
+                        showError('CSRF token tidak ditemukan.');
+                        return;
+                    }
+
+                    payButton.disabled = true;
+                    payButton.classList.add('opacity-80');
+
+                    try {
+                        const resp = await fetch("{{ route('payments.initiate') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                            body: JSON.stringify({
+                                subscription_id: "{{ $subscription->id }}",
+                            }),
+                        });
+
+                        const data = await resp.json().catch(() => null);
+                        if (!resp.ok) {
+                            const msg = data?.message || 'Gagal memulai pembayaran.';
+                            showError(msg);
+                            return;
+                        }
+
+                        const snapToken = data?.transaction?.snap_token;
+                        const transactionId = data?.transaction?.id;
+                        if (!snapToken) {
+                            showError('Snap token tidak tersedia.');
+                            return;
+                        }
+
+                        const refreshStatus = async () => {
+                            if (!transactionId) {
+                                return;
+                            }
+
+                            try {
+                                const r = await fetch(`/payments/${transactionId}/refresh`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': csrfToken,
+                                    },
+                                });
+
+                                const body = await r.json().catch(() => null);
+                                return body;
+                            } catch (_) {
+                                // ignore
+                            }
+                        };
+
+                        const cancelTransaction = async () => {
+                            if (!transactionId) {
+                                return;
+                            }
+
+                            try {
+                                await fetch(`/payments/${transactionId}/cancel`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': csrfToken,
+                                    },
+                                });
+                            } catch (_) {
+                                // ignore
+                            }
+                        };
+
+                        window.snap.pay(snapToken, {
+                            onSuccess: function () {
+                                refreshStatus().then((body) => {
+                                    const status = body?.transaction?.status;
+                                    if (status === 'success') {
+                                        window.location.href = "{{ route('home') }}";
+                                        return;
+                                    }
+
+                                    window.location.reload();
+                                }).catch(() => window.location.reload());
+                            },
+                            onPending: function () {
+                                refreshStatus().finally(() => window.location.reload());
+                            },
+                            onError: function () {
+                                cancelTransaction().finally(() => {
+                                    showError('Pembayaran gagal. Silakan coba lagi.');
+                                });
+                            },
+                            onClose: function () {
+                                cancelTransaction().finally(() => {
+                                    showError('Pembayaran dibatalkan karena kamu keluar dari halaman pembayaran.');
+                                });
+                            },
+                        });
+                    } catch (err) {
+                        showError('Terjadi error jaringan.');
+                    } finally {
+                        payButton.disabled = false;
+                        payButton.classList.remove('opacity-80');
+                    }
+                });
+            })();
+        </script>
+    @endpush
 </x-layout>

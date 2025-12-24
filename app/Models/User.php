@@ -26,7 +26,6 @@ class User extends Authenticatable
         'role',
         'is_premium',
         'premium_until',
-        'avatar',
         'active_subscription_id',
     ];
 
@@ -110,13 +109,5 @@ class User extends Authenticatable
     public function isPremium(): bool
     {
         return $this->getIsPremiumAttribute();
-    }
-
-    public function getAvatarUrl(): string
-    {
-        if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
-        }
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=8b7cf6&color=fff';
     }
 }

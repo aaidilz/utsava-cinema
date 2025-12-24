@@ -55,99 +55,79 @@
         @endauth
 
       </nav>
-<!-- RIGHT ICONS -->
-<div class="flex items-center gap-4">
 
-  <!-- SEARCH (SELALU TAMPIL) -->
-  <form action="{{ route('anime.search') }}" method="GET"
-        class="flex items-center bg-[#352c6a] px-3 py-2 rounded-lg gap-2 w-55">
-    <svg class="w-4 h-4 text-[#c7c4f3]" fill="none" stroke="currentColor" stroke-width="1.5"
-         viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round"
-            d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/>
-    </svg>
-    <input
-      type="text"
-      name="query"
-      value="{{ request('query') }}"
-      placeholder="Search anime..."
-      class="bg-transparent outline-none text-sm w-full placeholder:text-[#a3a0d9]"
-    />
-  </form>
+      <!-- RIGHT ICONS -->
+      <div class="flex items-center gap-4">
 
-  @auth
-    <!-- NOTIFICATION -->
-    <div class="relative cursor-pointer">
-      <svg class="w-5 h-5 text-[#c7c4f3]" fill="none" stroke="currentColor" stroke-width="1.5"
-           viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M14.857 17.082a23.848 23.848 0 01-5.714 0M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9z"/>
-      </svg>
-      <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">
-        3
-      </span>
-    </div>
+        <!-- SEARCH -->
+        <form action="{{ route('anime.search') }}" method="GET" class="flex items-center bg-[#352c6a] px-3 py-2 rounded-lg gap-2 w-55">
+          <svg class="w-4 h-4 text-[#c7c4f3]" fill="none" stroke="currentColor" stroke-width="1.5"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/>
+          </svg>
+          <input
+            type="text"
+            name="query"
+            value="{{ request('query') }}"
+            placeholder="Search anime..."
+            class="bg-transparent outline-none text-sm w-full placeholder:text-[#a3a0d9]"
+          />
+        </form>
 
-    <!-- PROFILE DROPDOWN -->
-    <div class="relative group">
-      <div class="w-9 h-9 rounded-full bg-[#8b7cf6] flex items-center justify-center cursor-pointer overflow-hidden">
-        @if(Auth::user()->avatar)
-          <img src="{{ Auth::user()->getAvatarUrl() }}"
-               alt="{{ Auth::user()->name }}"
-               class="w-full h-full object-cover">
-        @else
-          <span class="text-white font-semibold text-sm">
-            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-          </span>
-        @endif
-      </div>
-
-      <!-- DROPDOWN -->
-      <div
-        class="absolute right-0 mt-2 w-52 bg-[#352c6a] rounded-lg shadow-lg py-2
-               invisible group-hover:visible opacity-0 group-hover:opacity-100
-               transition-all duration-200 z-50"
-      >
-        <div class="px-4 py-2 border-b border-[#4a3f7a]">
-          <p class="text-sm font-semibold text-[#f2f1ff]">{{ Auth::user()->name }}</p>
-          <p class="text-xs text-[#c7c4f3]">{{ Auth::user()->email }}</p>
+        @auth
+        <!-- NOTIFICATION (Only for authenticated users) -->
+        <div class="relative cursor-pointer">
+          <svg class="w-5 h-5 text-[#c7c4f3]" fill="none" stroke="currentColor" stroke-width="1.5"
+               viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M14.857 17.082a23.848 23.848 0 01-5.714 0M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9z"/>
+          </svg>
+          <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full px-1">3</span>
         </div>
 
-        <a href="{{ route('profile.edit') }}"
-           class="block px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
-          Edit Profile
-        </a>
-
-        @if(Auth::user()->isAdmin())
-          <a href="{{ route('dashboard') }}"
-             class="block px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
-            Dashboard
+        <!-- PROFILE DROPDOWN -->
+        <div class="relative group">
+          <div class="w-9 h-9 rounded-full bg-[#8b7cf6] flex items-center justify-center cursor-pointer">
+            <span class="text-white font-semibold text-sm">{{ substr(Auth::user()->name, 0, 1) }}</span>
+          </div>
+          
+          <!-- Dropdown Menu -->
+          <div class="absolute right-0 mt-2 w-48 bg-[#352c6a] rounded-lg shadow-lg py-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50">
+            <div class="px-4 py-2 border-b border-[#4a3f7a]">
+              <p class="text-sm font-semibold text-[#f2f1ff]">{{ Auth::user()->name }}</p>
+              <p class="text-xs text-[#c7c4f3]">{{ Auth::user()->email }}</p>
+              @if(Auth::user()->isAdmin())
+              <span class="inline-block mt-1 px-2 py-0.5 text-[10px] bg-red-600 text-white rounded-full">Admin</span>
+              @endif
+            </div>
+            @if(Auth::user()->isAdmin())
+            <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
+              <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+            </a>
+            @endif
+            <a href="{{ route('watchlist') }}" class="block px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
+              <i class="fas fa-heart mr-2"></i>My Watchlist
+            </a>
+            <form method="POST" action="{{ route('logout') }}" class="block">
+              @csrf
+              <button type="submit" class="w-full text-left px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+              </button>
+            </form>
+          </div>
+        </div>
+        @else
+        <!-- AUTH BUTTONS (Only for guests) -->
+        <div class="flex items-center gap-3">
+          <a href="{{ route('login') }}" class="px-4 py-2 text-sm text-[#c7c4f3] hover:text-[#f2f1ff] transition-colors">
+            Login
           </a>
-        @endif
-
-        <form method="POST" action="{{ route('logout') }}">
-          @csrf
-          <button type="submit"
-                  class="w-full text-left px-4 py-2 text-sm text-[#c7c4f3] hover:bg-[#4a3f7a] hover:text-[#f2f1ff]">
-            Logout
-          </button>
-        </form>
+          <a href="{{ route('register') }}" class="px-4 py-2 text-sm bg-[#8b7cf6] hover:bg-[#7a6ae5] text-white rounded-lg transition-colors">
+            Register
+          </a>
+        </div>
+        @endauth
       </div>
-    </div>
-
-  @else
-    <!-- GUEST ONLY -->
-    <div class="flex items-center gap-3">
-      <a href="{{ route('login') }}"
-         class="px-4 py-2 text-sm text-[#c7c4f3] hover:text-[#f2f1ff]">
-        Login
-      </a>
-      <a href="{{ route('register') }}"
-         class="px-4 py-2 text-sm bg-[#8b7cf6] hover:bg-[#7a6ae5] text-white rounded-lg">
-        Register
-      </a>
-    </div>
-  @endauth
-</div>
 
     </header>
