@@ -11,6 +11,8 @@ use App\Http\Controllers\FirebaseAuthController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\MidtransCallbackController;
 use App\Models\Subscription;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ProfileController;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
