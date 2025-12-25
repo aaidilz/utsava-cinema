@@ -1,35 +1,72 @@
 <?php
-// ...existing code...
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules;
-use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 
-class UserController extends Controller
+final class UserController extends Controller
 {
-    public function index(Request $request)
+    public function dashboard(Request $request)
     {
-        // load users with latest transaction for billing info
-        $users = User::with(['transactions' => function($q) {
-            $q->latest()->limit(1);
-        }])->orderBy('created_at', 'desc')->paginate(20);
+        $query = User::query();
 
-        return view('admin.dashboard', compact('users'));
+        $search = trim((string) $request->query('q', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $subscriptionStatus = (string) $request->query('subscription', 'all');
+        if ($subscriptionStatus === 'premium') {
+            $query->where('premium_until', '>', now());
+        } elseif ($subscriptionStatus === 'free') {
+            $query->where(function ($q) {
+                $q->whereNull('premium_until')->orWhere('premium_until', '<=', now());
+            });
+        }
+
+        $users = $query
+            ->with(['latestTransaction', 'activeSubscription'])
+            ->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        $totalUsers = User::query()->count();
+        $totalTransactions = Transaction::query()->count();
+        $totalRevenue = (float) Transaction::query()
+            ->where('status', 'success')
+            ->sum('amount');
+        $activeSubscribers = User::query()
+            ->where('premium_until', '>', now())
+            ->count();
+
+        return view('admin.dashboard', [
+            'users' => $users,
+            'totalUsers' => $totalUsers,
+            'totalTransactions' => $totalTransactions,
+            'totalRevenue' => $totalRevenue,
+            'activeSubscribers' => $activeSubscribers,
+            'search' => $search,
+            'subscriptionStatus' => $subscriptionStatus,
+        ]);
     }
 
     public function show(User $user)
-{
-    // ambil transaksi terakhir user (optional)
-    $user->load(['transactions' => function ($q) {
-        $q->latest()->limit(1);
-    }]);
+    {
+        $user->loadMissing([
+            'transactions.subscription',
+            'activeSubscription',
+        ]);
 
-    return view('admin.dashboarddetail', compact('user'));
-}
-
-    // ...existing code...
+        return view('admin.dashboard_detail', [
+            'user' => $user,
+        ]);
+    }
 }

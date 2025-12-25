@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Anime;
 
-use App\Services\AnimeService;
+use App\Http\Controllers\Controller;
+use App\Services\Anime\AnimeService;
 use Illuminate\Http\Request;
 
 class AnimeController extends Controller

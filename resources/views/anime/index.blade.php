@@ -16,14 +16,18 @@
                         <button class="absolute top-2 left-2 z-20 p-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity add-to-watchlist"
                                 data-id="{{ $a['id'] }}"
                                 data-title="{{ $a['title'] }}"
-                                data-poster="{{ $a['cover'] ?? $a['poster'] }}">
+                                data-poster="{{ $a['image'] ?? '' }}">  
                             <i class="fas fa-heart text-sm"></i>
                         </button>
                     @endif
-                    <div class="aspect-[2/3] bg-gradient-to-br from-[#4a3f7a] to-[#352c6a]">
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <i class="fas fa-image text-4xl text-[#6d5bd0] opacity-50"></i>
-                        </div>
+                    <div class="aspect-[2/3] bg-gradient-to-br from-[#4a3f7a] to-[#352c6a] overflow-hidden">
+                        @if($a['image'])
+                            <img src="{{ $a['image'] }}" alt="{{ $a['title'] }}" class="w-full h-full object-cover">
+                        @else
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <i class="fas fa-image text-4xl text-[#6d5bd0] opacity-50"></i>
+                            </div>
+                        @endif
                     </div>
                     <div class="p-3">
                         <h3 class="font-semibold text-sm text-[#f2f1ff] line-clamp-2 mb-1">{{ $a['title'] }}</h3>

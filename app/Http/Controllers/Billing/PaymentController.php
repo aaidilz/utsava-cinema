@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Billing;
 
-use App\Http\Requests\InitiatePaymentRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Billing\InitiatePaymentRequest;
 use App\Models\Subscription;
 use App\Models\Transaction;
-use App\Services\MidtransService;
+use App\Services\Billing\MidtransService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

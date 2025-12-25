@@ -1,40 +1,8 @@
-<?php
-
-declare(strict_types=1);
-
-namespace App\Http\Controllers;
-
 use App\Models\Transaction;
-use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
-final class MidtransCallbackController extends Controller
-{
-    public function handle(Request $request, MidtransService $midtrans): JsonResponse
+    public function handle(Request $request): JsonResponse
     {
+        $midtrans = app()->make('App\Services\MidtransService');
         $payload = $request->all();
-
-        if (!$midtrans->verifyNotification($payload)) {
-            return response()->json(['ok' => false, 'message' => 'Invalid signature'], 401);
-        }
-
-        $orderId = (string) ($payload['order_id'] ?? '');
-        if ($orderId === '') {
-            return response()->json(['ok' => false, 'message' => 'Missing order_id'], 422);
-        }
-
-        /** @var Transaction|null $transaction */
-        $transaction = Transaction::query()->whereKey($orderId)->first();
-        if (!$transaction) {
-            return response()->json(['ok' => false, 'message' => 'Transaction not found'], 404);
-        }
-
-        DB::transaction(function () use ($transaction, $payload, $midtrans): void {
-            $midtrans->applyMidtransStatus($transaction, $payload);
-        });
-
-        return response()->json(['ok' => true]);
-    }
-}
