@@ -24,7 +24,10 @@ Route::get('/home', [HomeController::class, 'index']);
 // Anime browsing & streaming
 Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
 Route::get('/anime/{id}', [AnimeController::class, 'show'])->name('anime.show');
+
+Route::middleware(['auth', 'premium'])->group(function () {
 Route::get('/watch/{id}/{episode}', [WatchController::class, 'show'])->name('watch.show');
+});
 Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
 
 // Watch progress (resume like YouTube)
