@@ -15,7 +15,7 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\ProfileController;
+
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
