@@ -158,7 +158,7 @@ class AnimeService
         $key = 'anime_search_' . md5($query . '_' . $page . '_' . $limit);
         return Cache::remember($key, 60 * 5, function () use ($query, $page, $limit) {
             try {
-                $resp = Http::get($this->base . '/search', [
+                $resp = Http::get($this->base . '/anime', [
                     'query' => $query,
                     'page' => $page,
                     'limit' => $limit,
@@ -169,7 +169,9 @@ class AnimeService
                         return [];
                     }
 
-                    $results = $json['results'] ?? [];
+                    // Handles both { data: [...] } and just [...]
+                    $results = $json['data'] ?? ($json['results'] ?? ($json ?? []));
+
                     if (!is_array($results)) {
                         return [];
                     }

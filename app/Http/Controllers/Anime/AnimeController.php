@@ -99,9 +99,10 @@ class AnimeController extends Controller
     {
         $query = (string) $request->query('query', '');
         $limit = (int) $request->query('limit', 24);
+        $page = (int) $request->query('page', 1);
         $results = [];
         if (strlen($query) > 1) {
-            $results = $this->animeService->search($query, $limit);
+            $results = $this->animeService->search($query, $page, $limit);
         }
         return view('anime.search', [
             'query' => $query,
