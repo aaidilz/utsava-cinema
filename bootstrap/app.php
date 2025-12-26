@@ -19,6 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'midtrans/callback',
         ]);
     })
+
+    ->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'premium' => \App\Http\Middleware\EnsureUserIsPremium::class,
+    ]);
+})
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
