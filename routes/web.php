@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WatchlistController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Models\Subscription;
 
 // Public routes
@@ -70,6 +71,11 @@ Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminUserController::class, 'dashboard'])->name('dashboard');
     Route::get('/admin/users/{user}', [AdminUserController::class, 'show'])->name('admin.users.show');
+    Route::get('/admin/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+
+    Route::get('/admin/reports/revenue', [ReportController::class, 'revenue'])->name('admin.reports.revenue');
 });
 
 // test routes for static pages
@@ -90,6 +96,7 @@ Route::get('/checkout/{subscription}', function (Subscription $subscription) {
 Route::middleware('auth')->group(function () {
     Route::get('/settings', [ProfileController::class, 'edit'])->name('auth.settings');
     Route::put('/settings', [ProfileController::class, 'update'])->name('auth.settings.update');
+    Route::delete('/settings/avatar', [ProfileController::class, 'destroyAvatar'])->name('auth.settings.destroy-avatar');
 });
 // Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))

@@ -58,4 +58,17 @@ final class ProfileController extends Controller
 
         return back()->with('success', 'Pengaturan akun berhasil disimpan.');
     }
+    public function destroyAvatar()
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+            $user->avatar = null;
+            $user->save();
+        }
+
+        return back()->with('success', 'Foto profil berhasil dihapus.');
+    }
 }
