@@ -90,7 +90,7 @@ class AnimeService
             'name' => $name,
             'image' => $image,
             'genres' => $genres,
-            'synopsis' => $raw['synopsis'] ?? null,
+            'synopsis' => isset($raw['synopsis']) ? strip_tags($raw['synopsis']) : null,
             'release_year' => $releaseYear,
             'status' => $raw['status'] ?? null,
             'alternative_names' => $alternativeNames,
@@ -112,15 +112,20 @@ class AnimeService
     /**
      * Get list of anime for browsing
      */
-    public function getList(): array
+    public function getList(int $page = 1, int $limit = 24, ?string $genre = null): array
     {
-        $key = 'anime_browse_list';
-        return Cache::remember($key, 60 * 10, function () {
+        $key = 'anime_browse_list_' . $page . '_' . $limit . '_' . ($genre ?? 'all');
+        return Cache::remember($key, 60 * 5, function () use ($page, $limit, $genre) {
             try {
-                $resp = Http::get($this->base . '/anime/browse', [
-                    'page' => 1,
-                    'limit' => 24,
-                ]);
+                $params = [
+                    'page' => $page,
+                    'limit' => $limit,
+                ];
+                if ($genre) {
+                    $params['genres'] = $genre;
+                }
+
+                $resp = Http::get($this->base . '/anime/browse', $params);
                 if ($resp->ok()) {
                     $body = $resp->json();
                     if (!is_array($body)) {
@@ -133,8 +138,8 @@ class AnimeService
                     }
 
                     return collect($items)
-                        ->filter(fn ($it) => is_array($it))
-                        ->map(fn ($it) => $this->normalizeCard($it))
+                        ->filter(fn($it) => is_array($it))
+                        ->map(fn($it) => $this->normalizeCard($it))
                         ->values()
                         ->all();
                 }
@@ -148,13 +153,14 @@ class AnimeService
     /**
      * Search anime by query
      */
-    public function search(string $query, int $limit = 20): array
+    public function search(string $query, int $page = 1, int $limit = 24): array
     {
-        $key = 'anime_search_' . md5($query . '_' . $limit);
-        return Cache::remember($key, 60 * 10, function () use ($query, $limit) {
+        $key = 'anime_search_' . md5($query . '_' . $page . '_' . $limit);
+        return Cache::remember($key, 60 * 5, function () use ($query, $page, $limit) {
             try {
                 $resp = Http::get($this->base . '/search', [
                     'query' => $query,
+                    'page' => $page,
                     'limit' => $limit,
                 ]);
                 if ($resp->ok()) {
@@ -169,8 +175,8 @@ class AnimeService
                     }
 
                     return collect($results)
-                        ->filter(fn ($r) => is_array($r))
-                        ->map(fn ($r) => $this->normalizeCard($r))
+                        ->filter(fn($r) => is_array($r))
+                        ->map(fn($r) => $this->normalizeCard($r))
                         ->values()
                         ->all();
                 }
@@ -217,12 +223,12 @@ class AnimeService
                     $data = $resp->json();
                     $episodesObj = $data['episodes'] ?? [];
                     $numbers = collect(array_keys($episodesObj))
-                        ->map(fn($n) => (int)$n)
+                        ->map(fn($n) => (int) $n)
                         ->sort()
                         ->values();
                     return $numbers->map(function ($num) {
                         return [
-                            'id' => (string)$num,
+                            'id' => (string) $num,
                             'number' => $num,
                             'title' => 'Episode ' . $num,
                             'thumbnail' => null,
@@ -249,14 +255,14 @@ class AnimeService
                 if ($resp->ok()) {
                     $data = $resp->json();
                     $streams = $data['streams'] ?? [];
-                    
+
                     // Filter by language and normalize
                     return collect($streams)
                         ->filter(fn($s) => ($s['language'] ?? 'sub') === $language)
                         ->map(function ($s) {
                             return [
                                 'url' => $s['url'] ?? '',
-                                'resolution' => (int)($s['resolution'] ?? 0),
+                                'resolution' => (int) ($s['resolution'] ?? 0),
                                 'language' => $s['language'] ?? 'sub',
                                 'referer' => $s['referer'] ?? null,
                                 'subtitle' => $s['subtitle'] ?? null,

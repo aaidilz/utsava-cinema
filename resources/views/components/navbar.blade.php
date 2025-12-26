@@ -24,9 +24,9 @@
         class="text-sm font-medium transition-colors hover:text-white {{ request()->routeIs('anime.*') ? 'text-white' : 'text-zinc-400' }}">
         Browse
       </a>
-      <div class="text-sm font-medium text-zinc-400 cursor-not-allowed opacity-50">
+      <!-- <div class="text-sm font-medium text-zinc-400 cursor-not-allowed opacity-50">
         Trending
-      </div>
+      </div> -->
       @auth
         <a href="{{ route('watchlist') }}"
           class="text-sm font-medium transition-colors hover:text-white {{ request()->routeIs('watchlist') ? 'text-white' : 'text-zinc-400' }}">
@@ -64,7 +64,8 @@
             @else
               <div
                 class="w-full h-full flex items-center justify-center text-xs font-bold text-zinc-400 group-hover:text-white">
-                {{ $userInitial }}</div>
+                {{ $userInitial }}
+              </div>
             @endif
           </div>
 

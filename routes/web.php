@@ -102,3 +102,6 @@ Route::middleware('auth')->group(function () {
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
 //     ->name('pages.checkout');
 // Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+
+
+

@@ -36,6 +36,7 @@
         e.stopPropagation();
 
         const icon = btn.querySelector('svg');
+        const text = btn.querySelector('.btn-text');
 
         const data = {
           identifier_id: btn.dataset.id,
@@ -49,9 +50,11 @@
         if (!isCurrentlyAdded) {
           icon.classList.remove('text-zinc-400');
           icon.classList.add('text-red-500', 'fill-current');
+          if (text) text.textContent = 'Remove from List';
         } else {
           icon.classList.add('text-zinc-400');
           icon.classList.remove('text-red-500', 'fill-current');
+          if (text) text.textContent = 'Add to List';
         }
 
         fetch('/watchlist', {
@@ -67,6 +70,7 @@
             if (data.status === 'added') {
               icon.classList.remove('text-zinc-400');
               icon.classList.add('text-red-500', 'fill-current');
+              if (text) text.textContent = 'Remove from List';
             } else if (data.status === 'removed') {
               // Check if we are on the watchlist page
               if (window.location.pathname.includes('/watchlist')) {
@@ -91,6 +95,7 @@
               } else {
                 icon.classList.add('text-zinc-400');
                 icon.classList.remove('text-red-500', 'fill-current');
+                if (text) text.textContent = 'Add to List';
               }
             }
           })
@@ -100,9 +105,11 @@
             if (!isCurrentlyAdded) {
               icon.classList.add('text-zinc-400');
               icon.classList.remove('text-red-500', 'fill-current');
+              if (text) text.textContent = 'Add to List';
             } else {
               icon.classList.remove('text-zinc-400');
               icon.classList.add('text-red-500', 'fill-current');
+              if (text) text.textContent = 'Remove from List';
             }
           });
       });

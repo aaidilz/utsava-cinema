@@ -16,11 +16,18 @@ class WatchlistController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'identifier_id' => 'required|string',
-            'anime_title' => 'required|string',
-            'poster_path' => 'nullable|string',
-        ]);
+        \Illuminate\Support\Facades\Log::info('Watchlist store request:', $request->all());
+
+        try {
+            $request->validate([
+                'identifier_id' => 'required|string',
+                'anime_title' => 'required|string',
+                'poster_path' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Illuminate\Support\Facades\Log::error('Watchlist validation failed:', $e->errors());
+            throw $e;
+        }
 
         $user = Auth::user();
 
@@ -28,18 +35,17 @@ class WatchlistController extends Controller
         $exists = $user->watchlists()->where('identifier_id', $request->identifier_id)->exists();
 
         if ($exists) {
-            // Optional: Toggle remove if exists, but for store usually we just return info
-            // For toggle behavior, we might want to handle it here or let the frontend decide.
-            // Let's implement toggle behavior for better UX if the same endpoint is hit.
             $user->watchlists()->where('identifier_id', $request->identifier_id)->delete();
             return response()->json(['message' => 'Removed from watchlist', 'status' => 'removed']);
         }
 
-        $user->watchlists()->create([
+        $created = $user->watchlists()->create([
             'identifier_id' => $request->identifier_id,
             'anime_title' => $request->anime_title,
             'poster_path' => $request->poster_path,
         ]);
+
+        \Illuminate\Support\Facades\Log::info('Watchlist item created:', $created->toArray());
 
         return response()->json(['message' => 'Added to watchlist', 'status' => 'added']);
     }

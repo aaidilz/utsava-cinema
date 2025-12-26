@@ -2,8 +2,8 @@
     @push('styles')
         <style>
             /* .swiper {
-                                    overflow: visible !important;
-                                } */
+                                            overflow: visible !important;
+                                        } */
 
             .swiper-pagination-bullet {
                 background: #4b5563;
@@ -152,10 +152,6 @@
                                                 <div>
                                                     <p class="text-2xl font-bold text-white">{{ $trend['rating'] ?? 'N/A' }}</p>
                                                     <p class="text-[10px] text-zinc-500 uppercase font-bold">Rating</p>
-                                                </div>
-                                                <div>
-                                                    <p class="text-2xl font-bold text-white">{{ $trend['views'] }}</p>
-                                                    <p class="text-[10px] text-zinc-500 uppercase font-bold">Views</p>
                                                 </div>
                                             </div>
                                         </div>
