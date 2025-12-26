@@ -1,158 +1,129 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sign Up - Utsava Cinema</title>
+    <title>Create Account - Utsava Cinema</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Instrument Sans', sans-serif; background-color: #111; color: white; }
-        </style>
-    @endif
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
+        rel="stylesheet">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-900 text-white">
-    <!-- Background -->
-    <div class="fixed inset-0 w-full h-full">
-        <div class="absolute inset-0 bg-linear-to-br from-red-900/20 via-gray-900 to-black"></div>
+
+<body
+    class="bg-[#0d0d0f] font-sans text-white antialiased selection:bg-indigo-500 selection:text-white relative overflow-hidden">
+
+    <!-- Background Gradients -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div
+            class="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-600/20 rounded-full blur-3xl mix-blend-screen animate-pulse">
+        </div>
+        <div
+            class="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-pink-600/10 rounded-full blur-3xl mix-blend-screen">
+        </div>
     </div>
 
     <!-- Register Container -->
-    <div class="relative min-h-screen flex items-center justify-center px-4 py-8">
+    <div class="min-h-screen flex items-center justify-center p-4 py-10">
         <div class="w-full max-w-md">
-            <!-- Logo -->
-            <div class="text-center mb-12">
-                <a href="{{ route('home') }}" class="text-5xl font-extrabold tracking-tight text-red-600">
-                    Utsava
-                </a>
-                <h1 class="text-3xl font-bold mt-8">Create Account</h1>
+
+            <div
+                class="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden">
+                <!-- Decorative Top Border -->
+                <div
+                    class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
+                </div>
+
+                <div class="text-center mb-8">
+                    <a href="{{ route('home') }}"
+                        class="inline-block text-3xl font-black italic bg-gradient-to-r from-pink-400 to-indigo-400 bg-clip-text text-transparent mb-2">
+                        ANIMETION
+                    </a>
+                    <h1 class="text-xl font-bold text-white italic">Join the Club!</h1>
+                    <p class="text-xs text-zinc-500 mt-1">Create an account to start your journey.</p>
+                </div>
+
+                @if ($errors->any())
+                    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <div class="flex items-center gap-2 text-red-400 text-xs">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{{ $error }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('register') }}" class="space-y-4">
+                    @csrf
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Full
+                            Name</label>
+                        <input type="text" name="name" value="{{ old('name') }}" required
+                            class="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-black/40 outline-none transition-all"
+                            placeholder="e.g. Naruto Uzumaki">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Email
+                            Address</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required
+                            class="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-black/40 outline-none transition-all"
+                            placeholder="e.g. naruto@konoha.com">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label
+                            class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Password</label>
+                        <input type="password" name="password" required
+                            class="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-black/40 outline-none transition-all"
+                            placeholder="Min. 8 characters">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Confirm
+                            Password</label>
+                        <input type="password" name="password_confirmation" required
+                            class="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-black/40 outline-none transition-all"
+                            placeholder="Repeat password">
+                    </div>
+
+                    <div class="flex items-start gap-2 ml-1 pt-2">
+                        <input type="checkbox" name="agree_terms" id="agree_terms" required
+                            class="mt-0.5 w-4 h-4 rounded bg-zinc-800 border-zinc-700 accent-indigo-500">
+                        <label for="agree_terms" class="text-xs text-zinc-400 select-none">
+                            I agree to the <a href="#" class="text-indigo-400 hover:text-indigo-300">Terms of
+                                Service</a> and <a href="#" class="text-indigo-400 hover:text-indigo-300">Privacy
+                                Policy</a>
+                        </label>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-3.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold text-sm uppercase tracking-wide hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-pink-900/20 mt-2">
+                        Create Account
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center">
+                    <p class="text-xs text-zinc-500">
+                        Already have an account?
+                        <a href="{{ route('login') }}"
+                            class="text-indigo-400 font-bold hover:text-indigo-300 transition-colors">Sign In</a>
+                    </p>
+                </div>
             </div>
 
-            <!-- Form -->
-            <form method="POST" action="{{ route('register') }}" class="space-y-6">
-                @csrf
-
-                <!-- Name -->
-                <div>
-                    <label for="name" class="block text-sm font-medium mb-2">Full Name</label>
-                    <input 
-                        type="text" 
-                        name="name" 
-                        id="name"
-                        value="{{ old('name') }}"
-                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/30 text-white"
-                        placeholder="John Doe"
-                        required
-                    >
-                    @error('name')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Email -->
-                <div>
-                    <label for="email" class="block text-sm font-medium mb-2">Email</label>
-                    <input 
-                        type="email" 
-                        name="email" 
-                        id="email"
-                        value="{{ old('email') }}"
-                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/30 text-white"
-                        placeholder="your@email.com"
-                        required
-                    >
-                    @error('email')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Password -->
-                <div>
-                    <label for="password" class="block text-sm font-medium mb-2">Password</label>
-                    <input 
-                        type="password" 
-                        name="password" 
-                        id="password"
-                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/30 text-white"
-                        placeholder="••••••••"
-                        required
-                    >
-                    @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-gray-500 text-xs mt-1">Minimum 8 characters</p>
-                </div>
-
-                <!-- Confirm Password -->
-                <div>
-                    <label for="password_confirmation" class="block text-sm font-medium mb-2">Confirm Password</label>
-                    <input 
-                        type="password" 
-                        name="password_confirmation" 
-                        id="password_confirmation"
-                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/30 text-white"
-                        placeholder="••••••••"
-                        required
-                    >
-                </div>
-
-                <!-- Terms -->
-                <div class="flex items-start">
-                    <input 
-                        type="checkbox" 
-                        name="agree_terms" 
-                        id="agree_terms"
-                        class="w-4 h-4 rounded bg-gray-800 border-gray-700 accent-red-600 mt-1"
-                        required
-                    >
-                    <label for="agree_terms" class="ml-2 text-sm text-gray-400">
-                        I agree to the Terms of Service and Privacy Policy
-                    </label>
-                </div>
-
-                <!-- Sign Up Button -->
-                <button 
-                    type="submit"
-                    class="w-full py-3 px-4 bg-red-600 hover:bg-red-700 font-bold text-white rounded-lg transition duration-200"
-                >
-                    Create Account
-                </button>
-
-                <!-- Divider -->
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-700"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-gray-900 text-gray-400">or</span>
-                    </div>
-                </div>
-
-                <!-- Sign In Link -->
-                <p class="text-center text-gray-400">
-                    Already have an account?
-                    <a href="{{ route('login') }}" class="text-red-600 hover:text-red-500 font-medium">
-                        Sign In
-                    </a>
-                </p>
-            </form>
         </div>
     </div>
-
-    <!-- Error Message -->
-    @if ($errors->any())
-        <div class="fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg max-w-xs">
-            @foreach ($errors->all() as $error)
-                <p>{{ $error }}</p>
-            @endforeach
-        </div>
-    @endif
 </body>
+
 </html>

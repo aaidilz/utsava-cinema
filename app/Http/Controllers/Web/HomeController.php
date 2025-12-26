@@ -92,7 +92,7 @@ class HomeController extends Controller
                             'year' => $it['release_year'] ?? null,
                             'episodes' => $it['total_episode'] ?? ($it['episodes'] ?? null),
                             'rating' => $it['rating_score'] ?? null,
-                            
+
                         ];
                     }
 
@@ -107,8 +107,45 @@ class HomeController extends Controller
             }
         });
 
+        // Fetch Popular Anime (Separate cache key)
+        $popular = Cache::remember('home_anime_popular', $cacheTtlMinutes * 60, function () {
+            try {
+                $base = rtrim(env('API_ENDPOINT', ''), '/');
+                $response = Http::get($base . '/anime/popular', [
+                    'page' => 1,
+                    'limit' => 5
+                ]);
+
+                if (!$response->successful()) {
+                    Log::error('HomeController: failed to fetch popular anime', ['status' => $response->status()]);
+                    return [];
+                }
+
+                $body = $response->json();
+                $items = $body['data'] ?? [];
+
+                $normalized = [];
+                foreach ($items as $it) {
+                    $normalized[] = [
+                        'id' => (string) ($it['identifier'] ?? ($it['id'] ?? '')),
+                        'title' => (string) ($it['name'] ?? ($it['title'] ?? '')),
+                        'image' => $it['image'] ?? ($it['cover_image'] ?? ($it['poster'] ?? null)),
+                        'rating' => $it['rating_score'] ?? null,
+                        'views' => '2.5M', // Placeholder as per design mock, or use real data if available
+                        'rank' => null, // Will be assigned by index
+                    ];
+                }
+                return $normalized;
+
+            } catch (\Exception $e) {
+                Log::error('HomeController: exception fetching popular', ['error' => $e->getMessage()]);
+                return [];
+            }
+        });
+
         return view('home.index', [
             'genres' => $data,
+            'popular' => $popular,
         ]);
     }
 }

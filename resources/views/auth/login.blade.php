@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,159 +8,170 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="firebase-verify-url" content="{{ route('auth.firebase.verify') }}">
     <meta name="home-url" content="{{ route('home') }}">
-    
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
-    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @else
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: 'Instrument Sans', sans-serif; background-color: #111; color: white; }
-        </style>
-    @endif
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
+        rel="stylesheet">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-900 text-white">
-    <!-- Background -->
-    <div class="fixed inset-0 w-full h-full">
-        <div class="absolute inset-0 bg-linear-to-br from-red-900/20 via-gray-900 to-black"></div>
+
+<body
+    class="bg-[#0d0d0f] font-sans text-white antialiased selection:bg-indigo-500 selection:text-white relative overflow-hidden">
+
+    <!-- Background Gradients -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div
+            class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 rounded-full blur-3xl mix-blend-screen animate-pulse">
+        </div>
+        <div
+            class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-violet-600/10 rounded-full blur-3xl mix-blend-screen">
+        </div>
     </div>
 
     <!-- Login Container -->
-    <div class="relative min-h-screen flex items-center justify-center px-4">
+    <div class="min-h-screen flex items-center justify-center p-4">
         <div class="w-full max-w-md">
-            <!-- Logo -->
-            <div class="text-center mb-12">
-                <a href="{{ route('home') }}" class="text-5xl font-extrabold tracking-tight text-red-600">
-                    Utsava
-                </a>
-                <h1 class="text-3xl font-bold mt-8">Sign In</h1>
-            </div>
 
-            <!-- Success Message -->
-            @if(session('success'))
-            <div class="mb-6 p-4 bg-green-500/20 border border-green-500 rounded-lg">
-                <p class="text-green-500 text-sm">{{ session('success') }}</p>
-            </div>
-            @endif
-
-            <!-- Form -->
-            <form method="POST" action="{{ route('login') }}" class="space-y-6">
-                @csrf
-
-                <!-- Email -->
-                <div>
-                    <label for="email" class="block text-sm font-medium mb-2">Email</label>
-                    <input 
-                        type="email" 
-                        name="email" 
-                        id="email"
-                        value="{{ old('email') }}"
-                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/30 text-white"
-                        placeholder="your@email.com"
-                        required
-                    >
-                    @error('email')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+            <div
+                class="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden group">
+                <!-- Decorative Top Border -->
+                <div
+                    class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
                 </div>
 
-                <!-- Password -->
-                <div>
-                    <label for="password" class="block text-sm font-medium mb-2">Password</label>
-                    <input 
-                        type="password" 
-                        name="password" 
-                        id="password"
-                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/30 text-white"
-                        placeholder="••••••••"
-                        required
-                    >
-                    @error('password')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Remember Me -->
-                <div class="flex items-center">
-                    <input 
-                        type="checkbox" 
-                        name="remember" 
-                        id="remember"
-                        class="w-4 h-4 rounded bg-gray-800 border-gray-700 accent-red-600"
-                    >
-                    <label for="remember" class="ml-2 text-sm">Remember me</label>
-                </div>
-
-                <!-- Sign In Button -->
-                <button 
-                    type="submit"
-                    class="w-full py-3 px-4 bg-red-600 hover:bg-red-700 font-bold text-white rounded-lg transition duration-200"
-                >
-                    Sign In
-                </button>
-
-                <!-- Google Sign In -->
-                <button
-                    type="button"
-                    id="googleSignInBtn"
-                    class="w-full py-3 px-4 bg-gray-800 hover:bg-gray-700 font-bold text-white rounded-lg transition duration-200 border border-gray-700"
-                >
-                    Continue with Google
-                </button>
-
-                <!-- Divider -->
-                <div class="relative">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-700"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-gray-900 text-gray-400">or</span>
-                    </div>
-                </div>
-
-                <!-- Sign Up Link -->
-                <p class="text-center text-gray-400">
-                    Don't have an account?
-                    <a href="{{ route('register') }}" class="text-red-600 hover:text-red-500 font-medium">
-                        Sign Up
+                <div class="text-center mb-8">
+                    <a href="{{ route('home') }}"
+                        class="inline-block text-3xl font-black italic bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent mb-2">
+                        ANIMETION
                     </a>
-                </p>
-            </form>
+                    <h1 class="text-xl font-bold text-white italic">Welcome Back!</h1>
+                    <p class="text-xs text-zinc-500 mt-1">Please sign in to continue watching.</p>
+                </div>
 
-            <!-- Info -->
-            <div class="mt-12 text-center text-gray-500 text-sm">
-                <p>This page is protected. Demo credentials:</p>
-                <p class="mt-2 text-gray-600">
-                    Email: <span class="text-gray-400">demo@utsava.com</span><br>
-                    Password: <span class="text-gray-400">password</span>
-                </p>
+                <!-- Success Message -->
+                @if(session('success'))
+                    <div class="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center gap-3">
+                        <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-emerald-500 text-xs font-medium">{{ session('success') }}</p>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <div class="flex items-center gap-2 text-red-400 text-xs">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{{ $error }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="space-y-4">
+                    <!-- Google Login -->
+                    <button type="button" id="googleSignInBtn"
+                        class="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl bg-white text-black font-bold hover:bg-zinc-200 transition-all active:scale-95 group">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4"
+                                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="#34A853"
+                                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="#FBBC05"
+                                d="M3.58 13.55c-.32-.96-.45-1.99-.33-3.03l.03-.49-3.66-2.84C-1.58 10.32-1.28 15.63 1.25 20.3l2.84-2.19c-.58-1.52-.78-3.03-.51-4.56z" />
+                            <path fill="#EA4335"
+                                d="M12 4.47c1.55-.02 3.03.53 4.15 1.54l3.1-3.1C17.43 1.23 14.77-.02 12 0 7.7 0 3.99 2.47 2.18 6.51L5.75 9.28c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        </svg>
+                        <span>Continue with Google</span>
+                    </button>
+
+                    <div class="relative py-2">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-white/10"></div>
+                        </div>
+                        <div
+                            class="relative flex justify-center text-[10px] uppercase tracking-widest text-zinc-500 font-bold bg-[#131316] px-2 rounded-full mx-auto w-fit z-10">
+                            OR EMAIL</div>
+                    </div>
+
+                    <form method="POST" action="{{ route('login') }}" class="space-y-4">
+                        @csrf
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">Email
+                                Address</label>
+                            <input type="email" name="email" value="{{ old('email') }}" required
+                                class="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-black/40 outline-none transition-all"
+                                placeholder="Enter your email">
+                        </div>
+
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between ml-1">
+                                <label
+                                    class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Password</label>
+                                {{-- <a href="#"
+                                    class="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors">Forgot?</a>
+                                --}}
+                            </div>
+                            <input type="password" name="password" required
+                                class="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-black/40 outline-none transition-all"
+                                placeholder="Enter your password">
+                        </div>
+
+                        <div class="flex items-center gap-2 ml-1">
+                            <input type="checkbox" name="remember" id="remember"
+                                class="w-4 h-4 rounded bg-zinc-800 border-zinc-700 accent-indigo-500">
+                            <label for="remember" class="text-xs text-zinc-400 select-none">Remember for 30 days</label>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold text-sm uppercase tracking-wide hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-indigo-900/20">
+                            Sign In
+                        </button>
+                    </form>
+                </div>
+
+                <div class="mt-8 text-center">
+                    <p class="text-xs text-zinc-500">
+                        Don't have an account?
+                        <a href="{{ route('register') }}"
+                            class="text-indigo-400 font-bold hover:text-indigo-300 transition-colors">Create Account</a>
+                    </p>
+                </div>
             </div>
+
+            <!-- Demo Info -->
+            <div class="text-center mt-6 opacity-30 hover:opacity-100 transition-opacity">
+                <p class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Demo Credentials</p>
+                <div class="flex items-center justify-center gap-4 mt-2 text-xs text-zinc-400 font-mono">
+                    <span>user@example.com</span>
+                    <span>password</span>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- Success Message -->
-    @if ($errors->any())
-        <div class="fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg">
-            {{ $errors->first() }}
-        </div>
-    @endif
-
-    <script id="firebase-config" type="application/json">{!! json_encode(config('services.firebase.web'), JSON_UNESCAPED_SLASHES) !!}</script>
-
+    <!-- Scripts from original file -->
+    <script id="firebase-config"
+        type="application/json">{!! json_encode(config('services.firebase.web'), JSON_UNESCAPED_SLASHES) !!}</script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-        import { getAuth, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
 
         const firebaseConfigEl = document.getElementById('firebase-config');
         const firebaseConfig = firebaseConfigEl?.textContent ? JSON.parse(firebaseConfigEl.textContent) : null;
-
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
         const verifyUrl = document.querySelector('meta[name="firebase-verify-url"]')?.getAttribute('content');
         const homeUrl = document.querySelector('meta[name="home-url"]')?.getAttribute('content');
         const googleSignInBtn = document.getElementById('googleSignInBtn');
-        const githubSignInBtn = document.getElementById('githubSignInBtn');
 
         const missingFirebaseConfig = !firebaseConfig
             || !firebaseConfig.apiKey
@@ -168,76 +180,37 @@
             || !firebaseConfig.appId;
 
         if (missingFirebaseConfig) {
-            console.warn('Firebase web config is missing. Set FIREBASE_WEB_* variables in .env');
+            console.warn('Firebase config missing');
             if (googleSignInBtn) {
+                googleSignInBtn.innerHTML = '<span class="text-xs text-red-500">Google Login Not Configured</span>';
                 googleSignInBtn.disabled = true;
-                googleSignInBtn.classList.add('opacity-60', 'cursor-not-allowed');
-                googleSignInBtn.textContent = 'Google Sign-In not configured';
-            }
-
-            if (githubSignInBtn) {
-                githubSignInBtn.disabled = true;
-                githubSignInBtn.classList.add('opacity-60', 'cursor-not-allowed');
-                githubSignInBtn.textContent = 'GitHub Sign-In not configured';
             }
         }
 
         const app = missingFirebaseConfig ? null : initializeApp(firebaseConfig);
         const auth = app ? getAuth(app) : null;
-
         const googleProvider = new GoogleAuthProvider();
-        const githubProvider = new GithubAuthProvider();
-        // Helps ensure email is available for GitHub accounts.
-        githubProvider.addScope('user:email');
 
-        async function signInWithProvider(provider, providerLabel) {
-            if (!csrfToken) {
-                alert('Missing CSRF token.');
-                return;
-            }
-
-            if (!verifyUrl) {
-                alert('Missing verification endpoint URL.');
-                return;
-            }
-
-            if (!auth) {
-                alert(`${providerLabel} Sign-In is not configured.`);
-                return;
-            }
-
+        async function signInWithProvider(provider) {
+            if (!csrfToken || !verifyUrl || !auth) return;
             try {
                 const result = await signInWithPopup(auth, provider);
                 const idToken = await result.user.getIdToken(true);
-
                 const res = await fetch(verifyUrl, {
                     method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                    body: JSON.stringify({ idToken }),
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ idToken })
                 });
-
-                const data = await res.json().catch(() => null);
-
-                if (!res.ok) {
-                    const message = data?.message || data?.errors?.idToken?.[0] || `${providerLabel} sign-in failed.`;
-                    alert(message);
-                    return;
-                }
-
-                window.location.href = data?.redirect || homeUrl || '/';
+                const data = await res.json();
+                if (res.ok) window.location.href = data.redirect || homeUrl || '/';
+                else alert(data.message || 'Login failed');
             } catch (err) {
                 console.error(err);
-                alert(`${providerLabel} sign-in cancelled or failed.`);
             }
         }
 
-        googleSignInBtn?.addEventListener('click', () => signInWithProvider(googleProvider, 'Google'));
-        githubSignInBtn?.addEventListener('click', () => signInWithProvider(githubProvider, 'GitHub'));
+        googleSignInBtn?.addEventListener('click', () => signInWithProvider(googleProvider));
     </script>
 </body>
+
 </html>
