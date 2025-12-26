@@ -13,6 +13,7 @@ use App\Http\Controllers\Stream\Watch\WatchProgressController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WatchlistController;
 use App\Models\Subscription;
 
 // Public routes
@@ -39,7 +40,7 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/auth/firebase/verify', [FirebaseAuthController::class, 'verifyToken'])
         ->name('auth.firebase.verify');
-    
+
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });
@@ -47,10 +48,10 @@ Route::middleware('guest')->group(function () {
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    
-    Route::get('/watchlist', function () {
-        return view('auth.watchlist');
-    })->name('watchlist');
+
+    Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist');
+    Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
+    Route::delete('/watchlist/{identifier}', [WatchlistController::class, 'destroy'])->name('watchlist.destroy');
 
     Route::post('/payments/initiate', [PaymentController::class, 'initiate'])
         ->name('payments.initiate');

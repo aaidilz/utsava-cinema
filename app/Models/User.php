@@ -40,6 +40,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function watchlists()
+    {
+        return $this->hasMany(UserWatchlist::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -67,10 +72,7 @@ class User extends Authenticatable
         return $this->hasOne(Transaction::class)->latestOfMany();
     }
 
-    public function watchlists()
-    {
-        return $this->hasMany(UserWatchlist::class);
-    }
+
 
     /**
      * The user's active subscription (nullable).
