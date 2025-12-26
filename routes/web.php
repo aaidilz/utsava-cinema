@@ -1,15 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AnimeApiController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\AnimeController;
-use App\Http\Controllers\StreamProxyController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\FirebaseAuthController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\Anime\AnimeController;
+use App\Http\Controllers\Auth\FirebaseAuthController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Billing\MidtransCallbackController;
+use App\Http\Controllers\Billing\PaymentController;
+use App\Http\Controllers\Stream\StreamProxyController;
+use App\Http\Controllers\Stream\Watch\WatchController;
+use App\Http\Controllers\Stream\Watch\WatchProgressController;
+use App\Http\Controllers\Web\HomeController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WatchlistController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Models\Subscription;
 
 // Public routes
@@ -19,8 +24,12 @@ Route::get('/home', [HomeController::class, 'index']);
 // Anime browsing & streaming
 Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
 Route::get('/anime/{id}', [AnimeController::class, 'show'])->name('anime.show');
-Route::get('/watch/{id}/{episode}', [AnimeController::class, 'watch'])->name('watch.show');
+Route::get('/watch/{id}/{episode}', [WatchController::class, 'show'])->name('watch.show');
 Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
+
+// Watch progress (resume like YouTube)
+Route::get('/watch-progress/{id}/{episode}', [WatchProgressController::class, 'show'])->name('watch.progress.show');
+Route::put('/watch-progress/{id}/{episode}', [WatchProgressController::class, 'update'])->name('watch.progress.update');
 
 // Stream proxy for referer support
 Route::get('/stream-proxy/{id}/{episode}', [StreamProxyController::class, 'proxy'])->name('stream.proxy');
@@ -32,7 +41,7 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/auth/firebase/verify', [FirebaseAuthController::class, 'verifyToken'])
         ->name('auth.firebase.verify');
-    
+
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });
@@ -40,10 +49,10 @@ Route::middleware('guest')->group(function () {
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    
-    Route::get('/watchlist', function () {
-        return view('auth.watchlist');
-    })->name('watchlist');
+
+    Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist');
+    Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
+    Route::delete('/watchlist/{identifier}', [WatchlistController::class, 'destroy'])->name('watchlist.destroy');
 
     Route::post('/payments/initiate', [PaymentController::class, 'initiate'])
         ->name('payments.initiate');
@@ -60,9 +69,13 @@ Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
 
 // Admin only routes
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('auth.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [AdminUserController::class, 'dashboard'])->name('dashboard');
+    Route::get('/admin/users/{user}', [AdminUserController::class, 'show'])->name('admin.users.show');
+    Route::get('/admin/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+
+    Route::get('/admin/reports/revenue', [ReportController::class, 'revenue'])->name('admin.reports.revenue');
 });
 
 // test routes for static pages
@@ -80,8 +93,15 @@ Route::get('/checkout/{subscription}', function (Subscription $subscription) {
 
     return view('auth.checkout', compact('subscription'));
 })->middleware('auth')->name('pages.checkout');
-Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+Route::middleware('auth')->group(function () {
+    Route::get('/settings', [ProfileController::class, 'edit'])->name('auth.settings');
+    Route::put('/settings', [ProfileController::class, 'update'])->name('auth.settings.update');
+    Route::delete('/settings/avatar', [ProfileController::class, 'destroyAvatar'])->name('auth.settings.destroy-avatar');
+});
 // Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
 //     ->name('pages.checkout');
 // Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+
+
+

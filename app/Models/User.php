@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'firebase_uid',
+        'avatar',
         'role',
         'is_premium',
         'premium_until',
@@ -38,6 +39,11 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function watchlists()
+    {
+        return $this->hasMany(UserWatchlist::class);
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -61,10 +67,12 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
-    public function watchlists()
+    public function latestTransaction()
     {
-        return $this->hasMany(UserWatchlist::class);
+        return $this->hasOne(Transaction::class)->latestOfMany();
     }
+
+
 
     /**
      * The user's active subscription (nullable).

@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         // Seed in order of dependencies
         $this->call([
             SubscriptionSeeder::class,
-            // UserSeeder::class,
+            UserSeeder::class,
             // TransactionSeeder::class,
         ]);
     }
