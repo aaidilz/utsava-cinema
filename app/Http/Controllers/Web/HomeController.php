@@ -111,7 +111,7 @@ class HomeController extends Controller
         $popular = Cache::remember('home_anime_popular', $cacheTtlMinutes * 60, function () {
             try {
                 $base = rtrim(env('API_ENDPOINT', ''), '/');
-                $response = Http::get($base . '/anime/popular', [
+                $response = Http::get($base . '/popular', [
                     'page' => 1,
                     'limit' => 5
                 ]);
@@ -143,9 +143,44 @@ class HomeController extends Controller
             }
         });
 
+        // Get Hero Anime (Top 1 Popular) with full details (synopsis)
+        $hero = Cache::remember('home_anime_hero', $cacheTtlMinutes * 60, function () use ($popular) {
+            if (empty($popular))
+                return null;
+
+            try {
+                $topId = $popular[0]['id'];
+                $base = rtrim(env('API_ENDPOINT', ''), '/');
+                $response = Http::get($base . '/anime/' . $topId);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    // Normalize if wrapped in data
+                    $item = $data['data'] ?? $data;
+
+                    return [
+                        'id' => (string) ($item['identifier'] ?? ($item['id'] ?? $topId)),
+                        'title' => (string) ($item['name'] ?? ($item['title'] ?? '')),
+                        'image' => $item['image'] ?? ($item['cover_image'] ?? ($item['poster'] ?? null)),
+                        'rating' => $item['rating_score'] ?? ($popular[0]['rating'] ?? '?'),
+                        'year' => $item['release_year'] ?? ($popular[0]['year'] ?? ''),
+                        'episodes' => $item['total_episode'] ?? ($popular[0]['episodes'] ?? ''),
+                        'synopsis' => $item['synopsis'] ?? 'No synopsis available.',
+                        'classification' => $item['rating_classification'] ?? '',
+                        'genres' => $item['genres'] ?? [],
+                    ];
+                }
+                return null;
+            } catch (\Exception $e) {
+                Log::error('HomeController: exception fetching hero', ['error' => $e->getMessage()]);
+                return null;
+            }
+        });
+
         return view('home.index', [
             'genres' => $data,
             'popular' => $popular,
+            'hero' => $hero,
         ]);
     }
 }

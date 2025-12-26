@@ -2,8 +2,8 @@
     @push('styles')
         <style>
             /* .swiper {
-                                overflow: visible !important;
-                            } */
+                                    overflow: visible !important;
+                                } */
 
             .swiper-pagination-bullet {
                 background: #4b5563;
@@ -37,54 +37,73 @@
 
         <!-- HERO SECTION -->
         <section class="relative h-[70vh] w-full overflow-hidden">
-            <!-- Background Image -->
-            <div
-                class="absolute inset-0 bg-[url('https://images5.alphacoders.com/131/1317606.jpeg')] bg-cover bg-center">
-            </div>
+            @if(isset($hero) && $hero)
+                <!-- Background Image -->
+                <div class="absolute inset-0 bg-cover bg-center transition-all duration-1000"
+                    style="background-image: url('{{ $hero['image'] }}');">
+                </div>
 
-            <!-- Overlay & Gradient -->
-            <div class="absolute inset-0 bg-black/40 hero-gradient"></div>
+                <!-- Overlay & Gradient -->
+                <div class="absolute inset-0 bg-black/40 hero-gradient"></div>
 
-            <div class="relative container mx-auto max-w-7xl px-4 md:px-6 h-full flex items-end pb-20">
-                <div class="max-w-2xl space-y-6 animate-fade-in-up">
-                    <span
-                        class="inline-block px-3 py-1 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg shadow-indigo-500/30">
-                        Top Trending
-                    </span>
-                    <h1 class="text-5xl md:text-7xl font-black italic text-white leading-[0.9] drop-shadow-2xl">
-                        JUJUTSU<br>KAISEN
-                    </h1>
+                <div class="relative container mx-auto max-w-7xl px-4 md:px-6 h-full flex items-end pb-20">
+                    <div class="max-w-2xl space-y-6 animate-fade-in-up">
+                        <span
+                            class="inline-block px-3 py-1 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full shadow-lg shadow-indigo-500/30">
+                            Top Trending
+                        </span>
+                        <h1
+                            class="text-5xl md:text-7xl font-black italic text-white leading-[0.9] drop-shadow-2xl line-clamp-2">
+                            {{ $hero['title'] }}
+                        </h1>
 
-                    <div class="flex items-center gap-4 text-sm font-medium text-zinc-300">
-                        <span class="text-green-400 font-bold">98% Match</span>
-                        <span>2023</span>
-                        <span class="px-2 py-0.5 border border-zinc-600 rounded text-xs">TV-MA</span>
-                        <span>24 Episodes</span>
-                    </div>
+                        <div class="flex items-center gap-4 text-sm font-medium text-zinc-300">
+                            @if($hero['rating'])
+                                <span class="text-green-400 font-bold"><i
+                                        class="fas fa-star mr-1"></i>{{ $hero['rating'] }}</span>
+                            @endif
+                            @if(!empty($hero['year']))
+                                <span>{{ $hero['year'] }}</span>
+                            @endif
+                            @if(!empty($hero['classification']))
+                                <span
+                                    class="px-2 py-0.5 border border-zinc-600 rounded text-xs">{{ $hero['classification'] }}</span>
+                            @endif
+                            @if(!empty($hero['episodes']))
+                                <span>{{ $hero['episodes'] }} Episodes</span>
+                            @endif
+                        </div>
 
-                    <p class="text-zinc-300 line-clamp-3 md:line-clamp-2 text-sm md:text-base max-w-xl drop-shadow-md">
-                        A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters
-                        a shaman's school to be able to locate the demon's other body parts and thus exorcise himself.
-                    </p>
+                        <p class="text-zinc-300 line-clamp-3 md:line-clamp-2 text-sm md:text-base max-w-xl drop-shadow-md">
+                            {{ $hero['synopsis'] }}
+                        </p>
 
-                    <div class="flex flex-wrap gap-4 pt-4">
-                        <a href="{{ url('/anime/jujutsu-kaisen-s2') }}"
-                            class="flex items-center gap-2 px-8 py-3 bg-white text-black font-black italic text-lg rounded-full hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z" />
-                            </svg>
-                            WATCH NOW
-                        </a>
-                        <button
-                            class="px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full hover:bg-white/20 transition-all active:scale-95">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 4v16m8-8H4" />
-                            </svg>
-                        </button>
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <a href="{{ route('anime.show', $hero['id']) }}"
+                                class="flex items-center gap-2 px-8 py-3 bg-white text-black font-black italic text-lg rounded-full hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                                WATCH NOW
+                            </a>
+                            <button
+                                class="add-to-watchlist px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-full hover:bg-white/20 transition-all active:scale-95"
+                                data-id="{{ $hero['id'] }}" data-title="{{ $hero['title'] }}"
+                                data-poster="{{ $hero['image'] }}">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @else
+                <!-- Fallback if no hero data -->
+                <div class="absolute inset-0 bg-zinc-900 flex items-center justify-center">
+                    <p class="text-white">Loading Highlights...</p>
+                </div>
+            @endif
         </section>
 
         <!-- CONTENT CONTAINER -->
@@ -177,44 +196,7 @@
                                 <div class="swiper-wrapper">
                                     @foreach($items as $item)
                                         <div class="swiper-slide">
-                                            <a href="{{ url('/anime', $item['id'] ?? '#') }}" class="group block relative">
-                                                <!-- Poster Card -->
-                                                <div
-                                                    class="aspect-[2/3] w-full rounded-2xl overflow-hidden bg-[#1a1a20] relative shadow-lg group-hover:-translate-y-2 group-hover:shadow-indigo-500/20 transition-all duration-300">
-                                                    <img src="{{ $item['image'] ?? ($item['cover'] ?? 'https://via.placeholder.com/200x300?text=No+Image') }}"
-                                                        alt="{{ $item['title'] ?? 'Anime' }}" loading="lazy"
-                                                        class="w-full h-full object-cover">
-
-                                                    <!-- Overlay Gradient -->
-                                                    <div
-                                                        class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-60 group-hover:opacity-80 transition-opacity">
-                                                    </div>
-
-                                                    <!-- Rating Badge -->
-                                                    <div
-                                                        class="absolute top-3 right-3 bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
-                                                        <svg class="w-3 h-3 text-yellow-400" fill="currentColor"
-                                                            viewBox="0 0 20 20">
-                                                            <path
-                                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.37 2.447a1 1 0 00-.364 1.118l1.286 3.957c.3.921-.755 1.688-1.54 1.118l-3.37-2.447a1 1 0 00-1.176 0l-3.37 2.447c-.784.57-1.839-.197-1.54-1.118l1.286-3.957a1 1 0 00-.364-1.118L2.063 9.384c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.957z" />
-                                                        </svg>
-                                                        {{ $item['rating_score'] ?? ($item['rating'] ?? '?') }}
-                                                    </div>
-                                                </div>
-
-                                                <!-- Metadata -->
-                                                <div class="mt-3 px-1">
-                                                    <h4 class="text-base font-bold text-white line-clamp-1 group-hover:text-indigo-400 transition-colors"
-                                                        title="{{ $item['title'] ?? '' }}">
-                                                        {{ $item['title'] ?? 'Unknown' }}
-                                                    </h4>
-                                                    <div class="flex items-center gap-2 mt-1 text-xs text-zinc-500 font-medium">
-                                                        <span>{{ $item['release_year'] ?? ($item['year'] ?? 'N/A') }}</span>
-                                                        <span class="w-1 h-1 rounded-full bg-zinc-600"></span>
-                                                        <span>{{ $item['total_episode'] ?? ($item['episodes'] ?? '?') }} Eps</span>
-                                                    </div>
-                                                </div>
-                                            </a>
+                                            <x-anime-card :anime="$item" />
                                         </div>
                                     @endforeach
                                 </div>
