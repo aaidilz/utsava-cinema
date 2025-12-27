@@ -36,6 +36,8 @@ class WatchProgressController extends Controller
             'duration' => ['nullable', 'numeric', 'min:0'],
             'resolution' => ['nullable', 'integer', 'min:0'],
             'language' => ['nullable', 'string'],
+            'anime_title' => ['nullable', 'string'],
+            'anime_poster' => ['nullable', 'string'],
         ]);
 
         $language = (string) ($validated['language'] ?? $request->query('language', 'sub'));
@@ -48,6 +50,7 @@ class WatchProgressController extends Controller
             'updated_at' => now()->toIso8601String(),
         ];
 
+        // Cache logic
         Cache::put(
             $this->progressCacheKey($principal, $id, $episode, $language),
             $payload,
@@ -59,6 +62,37 @@ class WatchProgressController extends Controller
                 $this->qualityCacheKey($principal, $id, $language),
                 (int) $payload['resolution'],
                 self::TTL_SECONDS
+            );
+        }
+
+        // DB Persistence for logged in users
+        if ($request->user()) {
+            // Retrieve existing metadata if available (e.g. from service or passed in request)
+            // Ideally we should get title/poster from AnimeService, but for performance in update loop 
+            // we rely on what we have or update it lazily.
+            // For now, we just update position. Title/Poster might be populated on page load or separate call.
+            // Or we accept it in request if available.
+
+            $dataToUpdate = [
+                'episode_number' => $episode,
+                'position' => $payload['position'],
+                'duration' => $payload['duration'],
+                'last_watched_at' => now(),
+            ];
+
+            if (!empty($validated['anime_title'])) {
+                $dataToUpdate['anime_title'] = $validated['anime_title'];
+            }
+            if (!empty($validated['anime_poster'])) {
+                $dataToUpdate['anime_poster'] = $validated['anime_poster'];
+            }
+
+            \App\Models\UserWatchHistory::updateOrCreate(
+                [
+                    'user_id' => $request->user()->id,
+                    'identifier_id' => $id,
+                ],
+                $dataToUpdate
             );
         }
 

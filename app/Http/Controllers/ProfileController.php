@@ -15,7 +15,11 @@ final class ProfileController extends Controller
 {
     public function edit()
     {
-        return view('profile.edit');
+        $user = Auth::user();
+        $watchHistory = $user->watchHistory()->take(4)->get(); // Get top 4 continue watching
+        $watchlist = $user->watchlists()->orderBy('created_at', 'desc')->take(6)->get();
+
+        return view('profile.edit', compact('user', 'watchHistory', 'watchlist'));
     }
 
     public function update(Request $request)
@@ -33,6 +37,7 @@ final class ProfileController extends Controller
             ],
             'password' => ['nullable', 'string', 'min:8'],
             'avatar' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'banner' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:5120'], // Max 5MB for banner
         ]);
 
         $user->name = $validated['name'];
@@ -44,20 +49,27 @@ final class ProfileController extends Controller
 
         if ($request->hasFile('avatar')) {
             $oldAvatar = (string) ($user->avatar ?? '');
-
             $path = $request->file('avatar')->store('avatars', 'public');
-
             if ($oldAvatar !== '' && $oldAvatar !== $path) {
                 Storage::disk('public')->delete($oldAvatar);
             }
-
             $user->avatar = $path;
+        }
+
+        if ($request->hasFile('banner')) {
+            $oldBanner = (string) ($user->banner ?? '');
+            $path = $request->file('banner')->store('banners', 'public');
+            if ($oldBanner !== '' && $oldBanner !== $path) {
+                Storage::disk('public')->delete($oldBanner);
+            }
+            $user->banner = $path;
         }
 
         $user->save();
 
-        return back()->with('success', 'Pengaturan akun berhasil disimpan.');
+        return back()->with('success', 'Profile updated successfully.');
     }
+
     public function destroyAvatar()
     {
         /** @var User $user */
@@ -69,6 +81,20 @@ final class ProfileController extends Controller
             $user->save();
         }
 
-        return back()->with('success', 'Foto profil berhasil dihapus.');
+        return back()->with('success', 'Avatar removed.');
+    }
+
+    public function destroyBanner()
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if ($user->banner) {
+            Storage::disk('public')->delete($user->banner);
+            $user->banner = null;
+            $user->save();
+        }
+
+        return back()->with('success', 'Banner removed.');
     }
 }

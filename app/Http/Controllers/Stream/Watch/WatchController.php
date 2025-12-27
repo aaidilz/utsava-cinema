@@ -17,6 +17,10 @@ class WatchController extends Controller
      */
     public function show(Request $request, string $id, string $episode)
     {
+        if (!$request->user()?->is_premium) {
+            return redirect()->route('pages.pricing');
+        }
+
         $language = (string) $request->query('language', 'sub');
 
         $anime = $this->animeService->getDetail($id);

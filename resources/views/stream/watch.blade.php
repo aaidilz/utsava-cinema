@@ -24,6 +24,8 @@
                 animeId: '{{ $animeId }}',
                 episodeNumber: '{{ $episodeNumber }}',
                 language: '{{ $language }}',
+                animeTitle: @json($anime['title'] ?? ''),
+                animePoster: @json($anime['poster_path'] ?? ''),
                 csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
             };
 
@@ -41,6 +43,11 @@
                 quality: () => `watch:quality:${window.watchState.animeId}:${window.watchState.language}`,
             };
 
+            // Throttled server sync
+            let lastServerSync = 0;
+            const SYNC_INTERVAL = 10000;
+            let saveTimer = null;
+
             async function saveProgressToServer(payload) {
                 const url = `/watch-progress/${window.watchState.animeId}/${window.watchState.episodeNumber}`;
                 try {
@@ -56,6 +63,8 @@
                             duration: payload.duration ?? null,
                             resolution: payload.resolution ?? null,
                             language: window.watchState.language,
+                            anime_title: window.watchState.animeTitle,
+                            anime_poster: window.watchState.animePoster,
                         }),
                         keepalive: true,
                     });
@@ -82,100 +91,57 @@
 
             // --- Player Logic ---
             let player = null;
-            let saveTimer = null;
-            let lastId = 0; // debounce checks
+            let lastId = 0;
 
-            async function initPlayer() {
-                if (player) {
-                    player.dispose();
-                    player = null;
-                }
+            function flushProgress(force = false) {
+                if (!player || player.disposed()) return;
+                const pos = player.currentTime();
+                if (!Number.isFinite(pos)) return;
 
-                const videoEl = document.getElementById('videoPlayer');
-                if (!videoEl) return;
+                const payload = {
+                    position: pos,
+                    duration: player.duration(),
+                    resolution: parseInt(localStorage.getItem(lsKeys.quality())) || null,
+                    updated_at: nowIso(),
+                };
 
-                // Initialize Video.js
-                player = videojs(videoEl, {
-                    controls: true,
-                    autoplay: false, // Don't auto play on load/reload to be polite, or maybe true if switching ep?
-                    preload: 'auto',
-                    fluid: true,
-                    responsive: true,
-                });
+                // Always save to LS immediately
+                localStorage.setItem(lsKeys.progress(), JSON.stringify(payload));
 
-                // 1. Resume Progress
-                const localProgress = safeJsonParse(localStorage.getItem(lsKeys.progress()));
-                const serverProgress = await fetchServerProgress();
+                // Determine if we should sync to server
+                const now = Date.now();
+                if (force || (now - lastServerSync > SYNC_INTERVAL)) {
+                    if (saveTimer) clearTimeout(saveTimer);
 
-                // Simple logic: prefer server if newer
-                const lpTime = localProgress?.updated_at ? Date.parse(localProgress.updated_at) : 0;
-                const spTime = serverProgress?.updated_at ? Date.parse(serverProgress.updated_at) : 0;
-                const best = (spTime >= lpTime) ? serverProgress : localProgress;
-
-                // 2. Initial Resolution
-                // Try usage preferred resolution from LS
-                const savedQuality = Number(localStorage.getItem(lsKeys.quality()));
-                const qualityBtns = document.querySelectorAll('.quality-btn');
-
-                let chosenBtn = null;
-                if (qualityBtns.length > 0) {
-                    if (Number.isFinite(savedQuality)) {
-                        chosenBtn = Array.from(qualityBtns).find(b => parseInt(b.dataset.resolution) === savedQuality);
-                    }
-                    if (!chosenBtn) chosenBtn = qualityBtns[0]; // Default to first (highest usually)
-                }
-
-                if (chosenBtn) {
-                    setQuality(chosenBtn, false); // false = don't seek/play yet
-
-                    // Seek after load
-                    const resumeAt = Number(best?.position) || 0;
-                    if (resumeAt > 0) {
-                        player.one('loadedmetadata', () => {
-                            const duration = player.duration();
-                            const safe = (Number.isFinite(duration) && duration > 0)
-                                ? Math.min(resumeAt, Math.max(0, duration - 5))
-                                : resumeAt;
-                            player.currentTime(safe);
-                        });
+                    if (force && navigator.sendBeacon) {
+                        const url = `/watch-progress/${window.watchState.animeId}/${window.watchState.episodeNumber}`;
+                        const data = new Blob([JSON.stringify({
+                            position: payload.position,
+                            duration: payload.duration ?? null,
+                            resolution: payload.resolution ?? null,
+                            language: window.watchState.language,
+                            _token: window.watchState.csrfToken
+                        })], { type: 'application/json' });
+                        navigator.sendBeacon(url, data);
+                    } else {
+                        saveTimer = setTimeout(() => {
+                            saveProgressToServer(payload).then(() => {
+                                lastServerSync = Date.now();
+                            });
+                        }, 500);
                     }
                 }
-
-                // 3. Events
-                // Quality Click
-                qualityBtns.forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        setQuality(btn, true);
-                    });
-                });
-
-                // Progress Saving
-                player.on('timeupdate', () => {
-                    const pos = player.currentTime();
-                    if (!Number.isFinite(pos)) return;
-                    const sec = Math.floor(pos);
-                    if (sec !== lastId && sec % 5 === 0) {
-                        lastId = sec;
-                        flushProgress();
-                    }
-                });
-                player.on('pause', flushProgress);
-                player.on('ended', flushProgress);
-                window.addEventListener('beforeunload', flushProgress);
             }
 
             function setQuality(btn, keepPosition) {
                 const url = btn.dataset.proxyUrl || btn.dataset.directUrl;
                 const res = parseInt(btn.dataset.resolution);
 
-                // Update UI
                 document.querySelectorAll('.quality-btn .active-indicator').forEach(el => el.classList.add('opacity-0'));
-                // document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('bg-indigo-600', 'text-white'));
-
                 const indicator = btn.querySelector('.active-indicator');
                 if (indicator) indicator.classList.remove('opacity-0');
-                // btn.classList.add('bg-indigo-600', 'text-white');
+
+                if (!player) return;
 
                 const wasPaused = player.paused();
                 const currentTime = player.currentTime();
@@ -188,38 +154,101 @@
                         if (!wasPaused) player.play();
                     });
                 }
-
-                // Save preference
                 localStorage.setItem(lsKeys.quality(), res);
             }
 
-            function flushProgress() {
-                if (!player || player.disposed()) return;
-                const pos = player.currentTime();
-                if (!Number.isFinite(pos)) return;
+            async function initPlayer() {
+                if (player) {
+                    player.dispose();
+                    player = null;
+                }
 
-                const payload = {
-                    position: pos,
-                    duration: player.duration(),
-                    resolution: parseInt(localStorage.getItem(lsKeys.quality())) || null,
-                    updated_at: nowIso(),
-                };
+                const videoEl = document.getElementById('videoPlayer');
+                if (!videoEl) return;
 
-                localStorage.setItem(lsKeys.progress(), JSON.stringify(payload));
+                player = videojs(videoEl, {
+                    controls: true,
+                    autoplay: false,
+                    preload: 'auto',
+                    fluid: true,
+                    responsive: true,
+                });
 
-                if (saveTimer) clearTimeout(saveTimer);
-                saveTimer = setTimeout(() => {
-                    saveProgressToServer(payload);
-                }, 1000);
+                // 1. Resume Progress
+                const localProgress = safeJsonParse(localStorage.getItem(lsKeys.progress()));
+                const serverProgress = await fetchServerProgress();
+
+                const lpTime = localProgress?.updated_at ? Date.parse(localProgress.updated_at) : 0;
+                const spTime = serverProgress?.updated_at ? Date.parse(serverProgress.updated_at) : 0;
+                const best = (spTime >= lpTime) ? serverProgress : localProgress;
+
+                // 2. Initial Resolution
+                const savedQuality = Number(localStorage.getItem(lsKeys.quality()));
+                const qualityBtns = document.querySelectorAll('.quality-btn');
+
+                let chosenBtn = null;
+                if (qualityBtns.length > 0) {
+                    if (Number.isFinite(savedQuality)) {
+                        chosenBtn = Array.from(qualityBtns).find(b => parseInt(b.dataset.resolution) === savedQuality);
+                    }
+                    if (!chosenBtn) chosenBtn = qualityBtns[0];
+                }
+
+                if (chosenBtn) {
+                    setQuality(chosenBtn, false);
+
+                    const resumeAt = Number(best?.position) || 0;
+                    // Always trigger initial sync once metadata is loaded to register "Continue Watching"
+                    player.one('loadedmetadata', () => {
+                        const duration = player.duration();
+                        const safe = (Number.isFinite(duration) && duration > 0 && resumeAt > 0)
+                            ? Math.min(resumeAt, Math.max(0, duration - 5))
+                            : resumeAt;
+                        player.currentTime(safe);
+
+                        // Force initial sync to DB
+                        flushProgress(true);
+                    });
+                }
+
+                // 3. Events
+                qualityBtns.forEach(btn => {
+                    // Remove old listeners to avoid duplicates if re-init? 
+                    // Actually initPlayer might handle fresh DOM if we replace innerHTML. 
+                    // But here we are just swapping source. Quality buttons persist?
+                    // If switching episode, we replace HTML, so fresh buttons.
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        setQuality(btn, true);
+                    };
+                });
+
+                player.on('timeupdate', () => {
+                    const pos = player.currentTime();
+                    if (!Number.isFinite(pos)) return;
+                    const sec = Math.floor(pos);
+                    if (sec !== lastId && sec % 5 === 0) {
+                        lastId = sec;
+                        flushProgress(false);
+                    }
+                });
+
+                player.on('pause', () => flushProgress(true));
+                player.on('ended', () => flushProgress(true));
             }
 
-            // --- AJAX Switching ---
+            // Global Listeners
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') flushProgress(true);
+            });
+            window.addEventListener('pagehide', () => flushProgress(true));
+
+            // AJAX Switching
             window.handleEpisodeClick = async function (e, element) {
                 e.preventDefault();
                 const url = element.href;
                 const epNum = element.dataset.episodeNumber;
 
-                // Visual feedback
                 element.classList.add('opacity-50');
 
                 try {
@@ -229,45 +258,31 @@
                     if (!resp.ok) throw new Error('Failed to load');
                     const data = await resp.json();
 
-                    // 1. Update State
                     window.watchState.episodeNumber = epNum;
                     window.history.pushState({}, '', url);
 
-                    // 2. Update DOM
                     document.getElementById('player-container').innerHTML = data.html_player;
                     document.getElementById('video-details').innerHTML = data.html_details;
 
-                    // Update playlist highlighting (lazy way: replace whole list)
-                    // Need to find the container parent of the clicked element or just replace the slot content
-                    // Since the slot content wrapper is not identified by ID in layout, we need to be careful.
-                    // In stream-layout, the playlist is inside .overflow-y-auto
-                    // Let's add ID to the playlist container in layout or find it.
-                    // For now, I'll assume the playlist component is wrapped in a div in the layout that I can target if I gave it an ID.
-                    // Wait, I didn't give the playlist container an ID in `stream-layout`.
-                    // I should assume the `episode-list` component creates a root div, but `episode-list` is a list of `<a>`.
-                    // So I need to target the parent. 
-                    // Let's go with: find where `element` is, go up to the container.
-                    const playlistContainer = element.parentElement;
-                    if (playlistContainer) playlistContainer.innerHTML = data.html_playlist;
+                    if (element.parentElement) {
+                        element.parentElement.innerHTML = data.html_playlist;
+                    }
 
-                    // 3. Re-init Player
                     initPlayer();
 
-                    // Auto play on switch
                     setTimeout(() => {
                         if (player) player.play();
                     }, 500);
 
                 } catch (err) {
                     console.error(err);
-                    window.location.href = url; // Fallback
+                    window.location.href = url;
                 } finally {
                     element.classList.remove('opacity-50');
                 }
                 return false;
             };
 
-            // Start
             document.addEventListener('DOMContentLoaded', initPlayer);
         </script>
     @endpush

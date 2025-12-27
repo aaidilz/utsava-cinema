@@ -97,6 +97,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('auth.profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('auth.profile.update');
     Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('auth.profile.destroy-avatar');
+    Route::delete('/profile/banner', [ProfileController::class, 'destroyBanner'])->name('auth.profile.destroy-banner');
 });
 // Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))

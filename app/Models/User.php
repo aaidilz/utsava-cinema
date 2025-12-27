@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'firebase_uid',
         'avatar',
+        'banner',
         'role',
         'is_premium',
         'premium_until',
@@ -43,6 +44,11 @@ class User extends Authenticatable
     public function watchlists()
     {
         return $this->hasMany(UserWatchlist::class);
+    }
+
+    public function watchHistory()
+    {
+        return $this->hasMany(UserWatchHistory::class)->orderBy('last_watched_at', 'desc');
     }
 
     /**
