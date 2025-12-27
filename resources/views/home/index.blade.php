@@ -2,8 +2,8 @@
     @push('styles')
         <style>
             /* .swiper {
-                                            overflow: visible !important;
-                                        } */
+                                                overflow: visible !important;
+                                            } */
 
             .swiper-pagination-bullet {
                 background: #4b5563;
@@ -181,7 +181,7 @@
                                 <p class="text-xs text-zinc-500 font-medium uppercase tracking-widest mt-1">Recommended for
                                     you</p>
                             </div>
-                            <a href="{{ url('/search') }}?genre={{ urlencode($genreName) }}"
+                            <a href="{{ url('/anime') }}?genre={{ urlencode($genreName) }}&query=&genre_mobile="
                                 class="text-xs font-bold text-indigo-400 hover:text-white transition-colors flex items-center gap-1 group">
                                 VIEW ALL <span class="group-hover:translate-x-1 transition-transform">→</span>
                             </a>

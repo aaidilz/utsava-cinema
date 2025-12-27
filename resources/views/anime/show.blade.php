@@ -45,8 +45,9 @@
                         $id = $anime['id'] ?? $anime['identifier'] ?? '';
                     @endphp
                     @if(count($episodes) > 0)
-                        <a href="{{ route('watch.show', [$id, $firstEp]) }}"
-                            class="block w-full py-4 rounded-xl bg-white text-black font-black italic text-center text-lg uppercase tracking-wide hover:bg-zinc-200 transition-all shadow-lg shadow-white/10 active:scale-95">
+                        <a href="{{ route('watch.show', [$id, $firstEp]) }}?language=sub"
+                            class="start-watching-btn block w-full py-4 rounded-xl bg-white text-black font-black italic text-center text-lg uppercase tracking-wide hover:bg-zinc-200 transition-all shadow-lg shadow-white/10 active:scale-95"
+                            data-base-url="{{ route('watch.show', [$id, $firstEp]) }}">
                             Start Watching
                         </a>
                     @else
@@ -168,24 +169,52 @@
 
                 <!-- EPISODES SECTION -->
                 <div id="episodes" class="space-y-6 pt-8 border-t border-white/5">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-wrap gap-4">
                         <h2 class="text-2xl font-black italic text-white uppercase tracking-tight">Episodes</h2>
 
-                        <!-- Simple Filter (Optional) -->
-                        <div class="flex bg-[#1a1a20] rounded-lg p-1">
-                            <button
-                                class="px-3 py-1 bg-white/10 text-white text-xs font-bold rounded-md">1-{{ count($episodes) > 100 ? 100 : count($episodes) }}</button>
-                            @if(count($episodes) > 100)
+                        <div class="flex items-center gap-3">
+                            <!-- Language Toggle -->
+                            <div class="flex bg-[#1a1a20] rounded-lg p-1 border border-white/10">
+                                <button data-language="sub"
+                                    class="language-toggle px-4 py-2 text-xs font-bold rounded-md transition-all active"
+                                    data-has-dub="true">
+                                    <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                    </svg>
+                                    SUB
+                                </button>
+                                <button data-language="dub"
+                                    class="language-toggle px-4 py-2 text-zinc-500 hover:text-white text-xs font-bold rounded-md transition-all {{ !$hasDub ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                    @if(!$hasDub) disabled title="Dub not available for this anime" @endif
+                                    data-has-dub="{{ $hasDub ? 'true' : 'false' }}">
+                                    <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                    DUB
+                                </button>
+                            </div>
+
+                            <!-- Episode Range Filter (Optional) -->
+                            <div class="flex bg-[#1a1a20] rounded-lg p-1">
                                 <button
-                                    class="px-3 py-1 text-zinc-500 hover:text-white text-xs font-bold rounded-md transition-colors">101-200</button>
-                            @endif
+                                    class="px-3 py-1 bg-white/10 text-white text-xs font-bold rounded-md">1-{{ count($episodes) > 100 ? 100 : count($episodes) }}</button>
+                                @if(count($episodes) > 100)
+                                    <button
+                                        class="px-3 py-1 text-zinc-500 hover:text-white text-xs font-bold rounded-md transition-colors">101-200</button>
+                                @endif
+                            </div>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         @forelse($episodes as $ep)
-                            <a href="{{ route('watch.show', [$id, $ep['number']]) }}"
-                                class="group bg-[#1a1a20] rounded-xl overflow-hidden hover:ring-2 ring-indigo-500/50 transition-all">
+                            <a href="{{ route('watch.show', [$id, $ep['number']]) }}?language=sub"
+                                class="episode-card group bg-[#1a1a20] rounded-xl overflow-hidden hover:ring-2 ring-indigo-500/50 transition-all"
+                                data-episode="{{ $ep['number'] }}">
                                 <div class="aspect-video relative bg-zinc-800">
                                     {{-- If thumbnail exists, otherwise cover --}}
                                     @php
@@ -243,6 +272,52 @@
     </main>
 
     @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const languageToggles = document.querySelectorAll('.language-toggle');
+                const episodeCards = document.querySelectorAll('.episode-card');
+                let currentLanguage = 'sub'; // Default language
 
+                // Handle language toggle clicks
+                languageToggles.forEach(toggle => {
+                    toggle.addEventListener('click', function () {
+                        const selectedLanguage = this.getAttribute('data-language');
+                        const hasDub = this.getAttribute('data-has-dub');
+
+                        // Prevent toggle if DUB is selected but not available
+                        if (selectedLanguage === 'dub' && hasDub === 'false') {
+                            // Show alert or do nothing
+                            return;
+                        }
+
+                        currentLanguage = selectedLanguage;
+
+                        // Update active state on buttons
+                        languageToggles.forEach(btn => {
+                            if (btn.getAttribute('data-language') === selectedLanguage) {
+                                btn.classList.add('active', 'bg-white/10', 'text-white');
+                                btn.classList.remove('text-zinc-500');
+                            } else {
+                                btn.classList.remove('active', 'bg-white/10', 'text-white');
+                                btn.classList.add('text-zinc-500');
+                            }
+                        });
+
+                        // Update all episode card links
+                        episodeCards.forEach(card => {
+                            const baseUrl = card.href.split('?')[0];
+                            card.href = baseUrl + '?language=' + selectedLanguage;
+                        });
+
+                        // Update Start Watching button
+                        const startWatchingBtn = document.querySelector('.start-watching-btn');
+                        if (startWatchingBtn) {
+                            const baseUrl = startWatchingBtn.getAttribute('data-base-url');
+                            startWatchingBtn.href = baseUrl + '?language=' + selectedLanguage;
+                        }
+                    });
+                });
+            });
+        </script>
     @endpush
 </x-layout>
