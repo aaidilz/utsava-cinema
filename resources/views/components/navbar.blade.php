@@ -75,6 +75,20 @@
             <div class="px-4 py-3 border-b border-zinc-900">
               <p class="text-sm font-bold text-white truncate">{{ Auth::user()->name }}</p>
               <p class="text-[10px] text-zinc-500 truncate">{{ Auth::user()->email }}</p>
+              @if(Auth::user()->is_premium)
+                <div
+                  class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                  <svg class="w-3 h-3 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Premium</span>
+                </div>
+              @else
+                <a href="{{ route('pages.pricing') }}"
+                  class="mt-2 block text-center text-[10px] font-bold bg-white text-black px-2 py-1 rounded-full hover:bg-zinc-200 transition-colors">
+                  Upgrade to Premium
+                </a>
+              @endif
             </div>
 
             @if(Auth::user()->isAdmin())
@@ -83,6 +97,11 @@
                 Admin Dashboard
               </a>
             @endif
+
+            <a href="{{ route('auth.profile') }}"
+              class="block px-4 py-2 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900">
+              Profile & Settings
+            </a>
 
             <a href="{{ route('watchlist') }}"
               class="block px-4 py-2 text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-900">
@@ -143,8 +162,8 @@
       <span class="text-[10px] font-medium">Saved</span>
     </a>
   @endauth
-  <a href="{{ Auth::check() ? '#' : route('login') }}"
-    class="p-2 flex flex-col items-center gap-1 {{ request()->routeIs('login') || request()->routeIs('register') ? 'text-white' : 'text-zinc-600' }}">
+  <a href="{{ Auth::check() ? route('auth.profile') : route('login') }}"
+    class="p-2 flex flex-col items-center gap-1 {{ request()->routeIs('login') || request()->routeIs('register') || request()->routeIs('auth.profile') ? 'text-white' : 'text-zinc-600' }}">
     @auth
       <div class="w-6 h-6 rounded-full bg-zinc-800 overflow-hidden">
         @if($navAvatar)

@@ -94,9 +94,9 @@ Route::get('/checkout/{subscription}', function (Subscription $subscription) {
     return view('auth.checkout', compact('subscription'));
 })->middleware('auth')->name('pages.checkout');
 Route::middleware('auth')->group(function () {
-    Route::get('/settings', [ProfileController::class, 'edit'])->name('auth.settings');
-    Route::put('/settings', [ProfileController::class, 'update'])->name('auth.settings.update');
-    Route::delete('/settings/avatar', [ProfileController::class, 'destroyAvatar'])->name('auth.settings.destroy-avatar');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('auth.profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('auth.profile.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('auth.profile.destroy-avatar');
 });
 // Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))

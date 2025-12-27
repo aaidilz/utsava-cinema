@@ -20,7 +20,7 @@
             @endif
 
             <div class="bg-white/5 backdrop-blur-sm p-6 rounded-xl shadow border border-white/6">
-                <form method="POST" action="{{ route('auth.settings.update') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('auth.profile.update') }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -109,7 +109,7 @@
                     </button>
                 </form>
 
-                <form id="deleteAvatarForm" action="{{ route('auth.settings.destroy-avatar') }}" method="POST"
+                <form id="deleteAvatarForm" action="{{ route('auth.profile.destroy-avatar') }}" method="POST"
                     class="hidden">
                     @csrf
                     @method('DELETE')
@@ -120,6 +120,7 @@
 
     @push('scripts')
         <script>
+            (function () {
                 const input = document.getElementById('avatarInput');
                 const img = document.getElementById('avatarPreview');
                 const fallback = document.getElementById('avatarFallback');

@@ -15,7 +15,7 @@ final class ProfileController extends Controller
 {
     public function edit()
     {
-        return view('auth.settings');
+        return view('profile.edit');
     }
 
     public function update(Request $request)
