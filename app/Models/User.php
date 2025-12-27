@@ -46,11 +46,6 @@ class User extends Authenticatable
         return $this->hasMany(UserWatchlist::class);
     }
 
-    public function watchHistory()
-    {
-        return $this->hasMany(UserWatchHistory::class)->orderBy('last_watched_at', 'desc');
-    }
-
     /**
      * Get the attributes that should be cast.
      *

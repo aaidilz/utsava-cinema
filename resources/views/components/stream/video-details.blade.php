@@ -5,8 +5,7 @@
         <div>
             <h1 class="text-2xl font-bold text-white leading-tight">{{ $anime['title'] ?? 'Unknown Anime' }}</h1>
             <h2 class="text-lg text-indigo-400 font-medium">
-                Episode {{ $currentEpisode['number'] ?? '—' }} <span class="text-zinc-500 mx-2">•</span>
-                {{ $currentEpisode['title'] ?? '' }}
+                Episode {{ $currentEpisode['number'] ?? '—' }}
             </h2>
         </div>
 

@@ -9,7 +9,6 @@ use App\Http\Controllers\Billing\MidtransCallbackController;
 use App\Http\Controllers\Billing\PaymentController;
 use App\Http\Controllers\Stream\StreamProxyController;
 use App\Http\Controllers\Stream\Watch\WatchController;
-use App\Http\Controllers\Stream\Watch\WatchProgressController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
@@ -26,10 +25,6 @@ Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
 Route::get('/anime/{id}', [AnimeController::class, 'show'])->name('anime.show');
 Route::get('/watch/{id}/{episode}', [WatchController::class, 'show'])->name('watch.show');
 Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
-
-// Watch progress (resume like YouTube)
-Route::get('/watch-progress/{id}/{episode}', [WatchProgressController::class, 'show'])->name('watch.progress.show');
-Route::put('/watch-progress/{id}/{episode}', [WatchProgressController::class, 'update'])->name('watch.progress.update');
 
 // Stream proxy for referer support
 Route::get('/stream-proxy/{id}/{episode}', [StreamProxyController::class, 'proxy'])->name('stream.proxy');

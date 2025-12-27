@@ -16,10 +16,9 @@ final class ProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
-        $watchHistory = $user->watchHistory()->take(4)->get(); // Get top 4 continue watching
         $watchlist = $user->watchlists()->orderBy('created_at', 'desc')->take(6)->get();
 
-        return view('profile.edit', compact('user', 'watchHistory', 'watchlist'));
+        return view('profile.edit', compact('user', 'watchlist'));
     }
 
     public function update(Request $request)
