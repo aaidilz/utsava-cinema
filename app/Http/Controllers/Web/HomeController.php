@@ -15,7 +15,7 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        $genres = ['Action', 'Romance', 'Fantasy', 'Adventure', 'Sci-Fi'];
+        $genres = ['Action', 'Romance', 'Fantasy', 'Slice of Life', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Sports', 'Music'];
 
         // Cache for 45 minutes
         $cacheTtlMinutes = 45;
@@ -81,18 +81,6 @@ class HomeController extends Controller
                             'languages' => is_array($it['languages'] ?? null) ? $it['languages'] : [],
                             'genres' => is_array($it['genres'] ?? null) ? $it['genres'] : [],
                             'total_episode' => $it['total_episode'] ?? ($it['episodes'] ?? null),
-                            'rating_score' => $it['rating_score'] ?? null,
-                            'rating_classification' => $it['rating_classification'] ?? null,
-                            'release_year' => $it['release_year'] ?? null,
-
-                            // Aliases used by current Blade templates
-                            'id' => (string) ($it['identifier'] ?? ($it['id'] ?? '')),
-                            'title' => (string) ($it['name'] ?? ($it['title'] ?? '')),
-                            'cover' => $it['image'] ?? ($it['cover_image'] ?? ($it['poster'] ?? null)),
-                            'year' => $it['release_year'] ?? null,
-                            'episodes' => $it['total_episode'] ?? ($it['episodes'] ?? null),
-                            'rating' => $it['rating_score'] ?? null,
-                            
                         ];
                     }
 
@@ -107,8 +95,79 @@ class HomeController extends Controller
             }
         });
 
+        // Fetch Popular Anime (Separate cache key)
+        $popular = Cache::remember('home_anime_popular', $cacheTtlMinutes * 60, function () {
+            try {
+                $base = rtrim(env('API_ENDPOINT', ''), '/');
+                $response = Http::get($base . '/popular', [
+                    'page' => 1,
+                    'limit' => 5
+                ]);
+
+                if (!$response->successful()) {
+                    Log::error('HomeController: failed to fetch popular anime', ['status' => $response->status()]);
+                    return [];
+                }
+
+                $body = $response->json();
+                $items = $body['data'] ?? [];
+
+                $normalized = [];
+                foreach ($items as $it) {
+                    $normalized[] = [
+                        'id' => (string) ($it['identifier'] ?? ($it['id'] ?? '')),
+                        'title' => (string) ($it['name'] ?? ($it['title'] ?? '')),
+                        'image' => $it['image'] ?? ($it['cover_image'] ?? ($it['poster'] ?? null)),
+                        'rating' => $it['rating_score'] ?? null,
+                        'rank' => null, // Will be assigned by index
+                    ];
+                }
+                return $normalized;
+
+            } catch (\Exception $e) {
+                Log::error('HomeController: exception fetching popular', ['error' => $e->getMessage()]);
+                return [];
+            }
+        });
+
+        // Get Hero Anime (Top 1 Popular) with full details (synopsis)
+        $hero = Cache::remember('home_anime_hero', $cacheTtlMinutes * 60, function () use ($popular) {
+            if (empty($popular))
+                return null;
+
+            try {
+                $topId = $popular[0]['id'];
+                $base = rtrim(env('API_ENDPOINT', ''), '/');
+                $response = Http::get($base . '/anime/' . $topId);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    // Normalize if wrapped in data
+                    $item = $data['data'] ?? $data;
+
+                    return [
+                        'id' => (string) ($item['identifier'] ?? ($item['id'] ?? $topId)),
+                        'title' => (string) ($item['name'] ?? ($item['title'] ?? '')),
+                        'image' => $item['image'] ?? ($item['cover_image'] ?? ($item['poster'] ?? null)),
+                        'rating' => $item['rating_score'] ?? ($popular[0]['rating'] ?? '?'),
+                        'year' => $item['release_year'] ?? ($popular[0]['year'] ?? ''),
+                        'episodes' => $item['total_episode'] ?? ($popular[0]['episodes'] ?? ''),
+                        'synopsis' => $item['synopsis'] ?? 'No synopsis available.',
+                        'classification' => $item['rating_classification'] ?? '',
+                        'genres' => $item['genres'] ?? [],
+                    ];
+                }
+                return null;
+            } catch (\Exception $e) {
+                Log::error('HomeController: exception fetching hero', ['error' => $e->getMessage()]);
+                return null;
+            }
+        });
+
         return view('home.index', [
             'genres' => $data,
+            'popular' => $popular,
+            'hero' => $hero,
         ]);
     }
 }

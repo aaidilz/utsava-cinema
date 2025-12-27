@@ -134,7 +134,13 @@ final class MidtransService
         $user->is_premium = true;
 
         $days = (int) $subscription->duration_days;
-        $user->premium_until = now()->addDays($days > 0 ? $days : 30);
+
+        $currentUntil = $user->premium_until;
+        $baseDate = ($currentUntil instanceof \Illuminate\Support\Carbon && $currentUntil->isFuture())
+            ? $currentUntil
+            : now();
+
+        $user->premium_until = $baseDate->addDays($days > 0 ? $days : 30);
 
         $user->save();
     }
@@ -161,7 +167,7 @@ final class MidtransService
             return false;
         }
 
-        $expected = hash('sha512', $orderId.$statusCode.$grossAmount.$serverKey);
+        $expected = hash('sha512', $orderId . $statusCode . $grossAmount . $serverKey);
 
         return hash_equals($expected, $signatureKey);
     }
