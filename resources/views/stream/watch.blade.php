@@ -1,424 +1,321 @@
-<x-layout title="Watch: {{ $anime['title'] ?? 'Episode' }}">
-    
-    <main class="flex-1 container mx-auto max-w-7xl p-4 md:p-6 text-white min-h-screen">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Video Player -->
-            <div class="lg:col-span-2 space-y-4">
-                <div class="bg-[#352c6a] rounded-lg overflow-hidden">
-                    <div class="aspect-video bg-black">
-                        <video id="videoPlayer" class="video-js vjs-default-skin vjs-big-play-centered w-full h-full" controls preload="auto">
-                            <p class="vjs-no-js">
-                                To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video
-                            </p>
-                        </video>
-                    </div>
-                    <div class="p-4">
-                        <h1 class="text-xl font-bold">{{ $anime['title'] ?? 'Unknown' }}</h1>
-                        <p class="text-[#c7c4f3]">Episode {{ $currentEpisode['number'] ?? '—' }}: {{ $currentEpisode['title'] ?? '' }}</p>
-                    </div>
-                </div>
-
-                <!-- Quality Selector -->
-                <div class="bg-[#352c6a] rounded-lg p-4">
-                    <h3 class="font-semibold mb-3 text-[#f2f1ff]">Quality</h3>
-                    @if(count($streams) > 0)
-                        <div class="flex flex-wrap gap-2">
-                            @foreach($streams as $stream)
-                                <button 
-                                    class="quality-btn px-4 py-2 rounded-lg transition-colors {{ $loop->first ? 'bg-[#8b7cf6] text-white' : 'bg-[#4a3f7a] text-[#c7c4f3] hover:bg-[#6d5bd0]' }}"
-                                    data-resolution="{{ $stream['resolution'] }}"
-                                    data-proxy-url="{{ route('stream.proxy', [$animeId, $episodeNumber]) }}?resolution={{ $stream['resolution'] }}&language={{ $language }}"
-                                    data-direct-url="{{ $stream['url'] }}"
-                                    data-has-referer="{{ !empty($stream['referer']) ? 'true' : 'false' }}"
-                                >
-                                    {{ $stream['resolution'] }}p
-                                </button>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-red-500">⚠️ No streams available for this episode</p>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Playlist -->
-            <aside class="bg-[#352c6a] rounded-lg overflow-hidden">
-                <div class="p-4 border-b border-[#4a3f7a]">
-                    <h2 class="text-lg font-bold">Playlist</h2>
-                </div>
-                <div class="max-h-[60vh] overflow-y-auto">
-                    @foreach($episodes as $ep)
-                        <a href="{{ route('watch.show', [$animeId, $ep['number']]) }}?language={{ $language }}" class="flex items-center gap-3 px-4 py-3 hover:bg-[#4a3f7a] {{ (isset($currentEpisode['number']) && $currentEpisode['number'] === $ep['number']) ? 'bg-[#4a3f7a]' : '' }}">
-                            <div class="w-16 h-10 bg-gradient-to-br from-[#4a3f7a] to-[#352c6a] rounded flex items-center justify-center">
-                                <i class="fas fa-film text-[#6d5bd0]"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-[#f2f1ff]">Ep {{ $ep['number'] }}: {{ $ep['title'] }}</p>
-                                <p class="text-xs text-[#c7c4f3]">{{ $ep['duration'] }}</p>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            </aside>
+<x-stream-layout title="Watch: {{ $anime['title'] ?? 'Episode' }}">
+    <x-slot:player>
+        <div id="player-container">
+            <x-stream.player :streams="$streams" :anime="$anime" :currentEpisode="$currentEpisode" :animeId="$animeId"
+                :episodeNumber="$episodeNumber" :language="$language" />
         </div>
-    </main>
+    </x-slot:player>
 
-    
+    <x-slot:details>
+        <div id="video-details">
+            <x-stream.video-details :anime="$anime" :currentEpisode="$currentEpisode" />
+        </div>
+    </x-slot:details>
+
+    <x-slot:playlist>
+        <x-stream.episode-list :episodes="$episodes" :currentEpisode="$currentEpisode" :animeId="$animeId"
+            :language="$language" />
+    </x-slot:playlist>
+
+    <x-slot:related>
+        <x-stream.related :related="$related" />
+    </x-slot:related>
+
+    @push('styles')
+        <style>
+            /* 1. Reset Button Container agar Simetris */
+            .vjs-quality-menu-button {
+                position: relative;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                width: 4em !important;
+                /* Standar lebar tombol Video.js */
+            }
+
+            /* 2. Centering Ikon Settings (Gear) - Pixel Perfect */
+            .vjs-quality-menu-button .vjs-icon-placeholder:before {
+                content: '\f013';
+                /* Gear icon FontAwesome */
+                font-family: 'Font Awesome 6 Free', 'FontAwesome', sans-serif;
+                font-weight: 900;
+                font-size: 1.3em;
+                /* Ukuran yang proporsional */
+
+                /* Teknik Centering Absolut */
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -45%) !important;
+                /* -45% untuk sedikit kompensasi baseline font */
+
+                /* Reset properti yang mengganggu */
+                line-height: 1 !important;
+                width: auto !important;
+                height: auto !important;
+                margin: 0 !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* 3. Normalisasi Menu Popup (Muncul di atas tombol) */
+            .vjs-quality-menu-button .vjs-menu {
+                bottom: 3em !important;
+                /* Tepat di atas control bar */
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+            }
+
+            .vjs-quality-menu-button .vjs-menu-content {
+                background: rgba(20, 20, 20, 0.95) !important;
+                backdrop-filter: blur(12px);
+                border-radius: 10px !important;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                padding: 5px 0;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            }
+
+            /* 4. Styling Item Menu */
+            .vjs-quality-menu-button .vjs-menu-item {
+                padding: 10px 20px !important;
+                font-size: 12px !important;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                transition: all 0.2s ease;
+            }
+
+            .vjs-quality-menu-button .vjs-menu-item:hover {
+                background: rgba(99, 102, 241, 0.2) !important;
+                color: #818cf8 !important;
+            }
+
+            .vjs-quality-menu-button .vjs-menu-item.vjs-selected {
+                background: #6366f1 !important;
+                /* Indigo-500 */
+                color: white !important;
+            }
+
+            /* 5. Label Kualitas (Badge Kecil) */
+            .vjs-quality-menu-button .vjs-quality-label {
+                font-size: 8px;
+                font-weight: 900;
+                background: #ef4444;
+                /* Merah sebagai indikator resolusi tinggi */
+                color: white;
+                padding: 1px 3px;
+                border-radius: 3px;
+                position: absolute;
+                top: 8px;
+                right: 4px;
+                line-height: 1;
+                z-index: 2;
+                pointer-events: none;
+                text-transform: uppercase;
+            }
+        </style>
+    @endpush
 
     @push('scripts')
-    @php
-        $watchContext = [
-            'animeId' => $animeId,
-            'episodeNumber' => (string) $episodeNumber,
-            'language' => $language,
-            'progressShowUrl' => route('watch.progress.show', [$animeId, $episodeNumber]) . '?language=' . $language,
-            'progressUpdateUrl' => route('watch.progress.update', [$animeId, $episodeNumber]),
-        ];
-
-        $watchJsonFlags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT;
-    @endphp
-    <script type="application/json" id="watch-context-json">{!! json_encode($watchContext, $watchJsonFlags) !!}</script>
-    <script type="application/json" id="watch-streams-json">{!! json_encode($streams, $watchJsonFlags) !!}</script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-
-            const ctxEl = document.getElementById('watch-context-json');
-            const streamsEl = document.getElementById('watch-streams-json');
-            const ctx = ctxEl ? JSON.parse(ctxEl.textContent || '{}') : {};
-            const streams = streamsEl ? JSON.parse(streamsEl.textContent || '[]') : [];
-
-            const lsKeys = {
-                progress: `watch:progress:${ctx.animeId}:${ctx.episodeNumber}:${ctx.language}`,
-                quality: `watch:quality:${ctx.animeId}:${ctx.language}`,
+        <script>
+            // --- Global State & Config ---
+            window.watchState = {
+                animeId: '{{ $animeId }}',
+                episodeNumber: '{{ $episodeNumber }}',
+                language: '{{ $language }}',
+                animeTitle: @json($anime['title'] ?? ''),
+                animePoster: @json($anime['image'] ?? ''),
+                csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
             };
 
-            function safeJsonParse(value) {
-                try {
-                    return JSON.parse(value);
-                } catch {
-                    return null;
-                }
-            }
+            let player = null;
+            let currentStreams = [];
+            let currentQuality = null;
 
-            function nowIso() {
-                return new Date().toISOString();
-            }
+            // --- Quality Menu Button Component ---
+            const createQualityMenuButton = (streams) => {
+                const MenuButton = videojs.getComponent('MenuButton');
+                const MenuItem = videojs.getComponent('MenuItem');
 
-            function pickStream(streamButtons, preferredResolution) {
-                if (!streamButtons.length) return null;
-                if (!preferredResolution) return streamButtons[0];
-
-                const exact = streamButtons.find(b => parseInt(b.dataset.resolution) === preferredResolution);
-                if (exact) return exact;
-
-                // Prefer next-lower resolution if exact not available
-                const sorted = [...streamButtons].sort((a, b) => parseInt(b.dataset.resolution) - parseInt(a.dataset.resolution));
-                const lowerOrEqual = sorted.find(b => parseInt(b.dataset.resolution) <= preferredResolution);
-                return lowerOrEqual || sorted[0];
-            }
-
-            function setActiveQualityButton(activeBtn) {
-                const qualityBtns = document.querySelectorAll('.quality-btn');
-                qualityBtns.forEach(b => {
-                    b.classList.remove('bg-[#8b7cf6]', 'text-white');
-                    b.classList.add('bg-[#4a3f7a]', 'text-[#c7c4f3]');
-                });
-                if (activeBtn) {
-                    activeBtn.classList.remove('bg-[#4a3f7a]', 'text-[#c7c4f3]');
-                    activeBtn.classList.add('bg-[#8b7cf6]', 'text-white');
-                }
-            }
-
-            function urlForButton(btn) {
-                const proxyUrl = btn?.dataset.proxyUrl || '';
-                const directUrl = btn?.dataset.directUrl || '';
-                // Prefer same-origin proxy for consistent seek/buffering.
-                return proxyUrl || directUrl;
-            }
-
-            function readLocalProgress() {
-                const raw = localStorage.getItem(lsKeys.progress);
-                const parsed = safeJsonParse(raw);
-                if (!parsed || typeof parsed !== 'object') return null;
-
-                const position = Number(parsed.position);
-                if (!Number.isFinite(position) || position < 0) return null;
-
-                return {
-                    position,
-                    duration: Number.isFinite(Number(parsed.duration)) ? Number(parsed.duration) : null,
-                    resolution: Number.isFinite(Number(parsed.resolution)) ? Number(parsed.resolution) : null,
-                    updated_at: typeof parsed.updated_at === 'string' ? parsed.updated_at : null,
-                };
-            }
-
-            function writeLocalProgress(progress) {
-                localStorage.setItem(lsKeys.progress, JSON.stringify({
-                    position: progress.position,
-                    duration: progress.duration ?? null,
-                    resolution: progress.resolution ?? null,
-                    updated_at: progress.updated_at ?? nowIso(),
-                }));
-            }
-
-            function readLocalQuality() {
-                const raw = localStorage.getItem(lsKeys.quality);
-                const res = Number(raw);
-                return Number.isFinite(res) ? res : null;
-            }
-
-            function writeLocalQuality(resolution) {
-                if (!Number.isFinite(resolution)) return;
-                localStorage.setItem(lsKeys.quality, String(resolution));
-            }
-
-            let lastSavedSecond = -1;
-            let saveTimer = null;
-            async function saveProgressToServer(payload) {
-                try {
-                    await fetch(ctx.progressUpdateUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
-                        },
-                        body: JSON.stringify({
-                            position: payload.position,
-                            duration: payload.duration ?? null,
-                            resolution: payload.resolution ?? null,
-                            language: ctx.language,
-                        }),
-                        keepalive: true,
-                    });
-                } catch {
-                    // ignore network errors; localStorage still works
-                }
-            }
-
-            function scheduleSave(progress) {
-                // debounce writes (like YouTube): write at most every ~3s
-                if (saveTimer) return;
-                saveTimer = setTimeout(async () => {
-                    saveTimer = null;
-                    await saveProgressToServer(progress);
-                }, 3000);
-            }
-
-            async function fetchServerProgress() {
-                try {
-                    const resp = await fetch(ctx.progressShowUrl, {
-                        headers: { 'Accept': 'application/json' },
-                        credentials: 'same-origin',
-                    });
-                    if (!resp.ok) return null;
-                    const data = await resp.json();
-                    return {
-                        position: Number(data.position) || 0,
-                        duration: data.duration != null ? Number(data.duration) : null,
-                        resolution: data.resolution != null ? Number(data.resolution) : null,
-                        updated_at: typeof data.updated_at === 'string' ? data.updated_at : null,
-                    };
-                } catch {
-                    return null;
-                }
-            }
-
-            function newerProgress(a, b) {
-                const at = a?.updated_at ? Date.parse(a.updated_at) : 0;
-                const bt = b?.updated_at ? Date.parse(b.updated_at) : 0;
-                return at >= bt ? a : b;
-            }
-            
-            // Initialize Video.js player
-            const player = videojs('videoPlayer', {
-                controls: true,
-                autoplay: false,
-                preload: 'auto',
-                fluid: true,
-                responsive: true,
-            });
-
-            // Get quality buttons and streams
-            const qualityBtns = document.querySelectorAll('.quality-btn');
-            let currentResolution = streams[0]?.resolution || 1080;
-
-            // Load initial stream (remembered quality if available)
-            (async function init() {
-                const serverProgress = await fetchServerProgress();
-                const localProgress = readLocalProgress();
-                const bestProgress = newerProgress(localProgress, serverProgress) || localProgress || serverProgress;
-
-                // Determine preferred resolution priority: query/server/local quality
-                const localQuality = readLocalQuality();
-                const preferredResolution = Number.isFinite(localQuality)
-                    ? localQuality
-                    : (Number.isFinite(bestProgress?.resolution) ? bestProgress.resolution : null);
-
-                const btns = Array.from(qualityBtns);
-                const chosenBtn = pickStream(btns, preferredResolution);
-
-                if (chosenBtn) {
-                    const chosenResolution = parseInt(chosenBtn.dataset.resolution);
-                    currentResolution = Number.isFinite(chosenResolution) ? chosenResolution : currentResolution;
-                    setActiveQualityButton(chosenBtn);
-                    writeLocalQuality(currentResolution);
-
-                    player.src({
-                        type: 'video/mp4',
-                        src: urlForButton(chosenBtn),
-                    });
-
-                    // Resume from last saved position
-                    const resumeAt = Number(bestProgress?.position) || 0;
-                    if (resumeAt > 0) {
-                        player.one('loadedmetadata', function() {
-                            const duration = player.duration();
-                            const safeResumeAt = (Number.isFinite(duration) && duration > 0)
-                                ? Math.min(resumeAt, Math.max(0, duration - 5))
-                                : resumeAt;
-                            player.currentTime(safeResumeAt);
+                // Custom Quality Menu Item
+                class QualityMenuItem extends MenuItem {
+                    constructor(player, options) {
+                        super(player, {
+                            label: options.label,
+                            selectable: true,
+                            selected: options.selected || false
                         });
+                        this.resolution = options.resolution;
+                        this.streamUrl = options.url;
+                    }
+
+                    handleClick(event) {
+                        super.handleClick(event);
+                        switchQuality(this.resolution, this.streamUrl);
                     }
                 }
-            })();
-            
-            // Add error event listener
-            player.on('error', function(e) {
-                const error = player.error();
-                console.error('Video player error:', error);
-            });
 
-            // Quality switching
-            qualityBtns.forEach((btn, index) => {
-                btn.addEventListener('click', function() {
-                    const resolution = parseInt(this.dataset.resolution);
-                    const url = urlForButton(this);
-                    
-                    const currentTime = player.currentTime();
-                    const wasPaused = player.paused();
+                // Custom Quality Menu Button
+                class QualityMenuButton extends MenuButton {
+                    constructor(player, options) {
+                        super(player, options);
+                        this.addClass('vjs-quality-menu-button');
+                        this.controlText('Quality');
+                    }
 
-                    // Update active button
-                    setActiveQualityButton(this);
+                    createItems() {
+                        const items = [];
+                        const savedRes = localStorage.getItem(`pref_res_${window.watchState.animeId}`);
 
-                    // Change source
-                    player.src({
-                        type: 'video/mp4',
-                        src: url
+                        streams.forEach((stream, index) => {
+                            const isSelected = savedRes
+                                ? stream.resolution.toString() === savedRes
+                                : index === 0;
+
+                            items.push(new QualityMenuItem(this.player_, {
+                                label: stream.label,
+                                resolution: stream.resolution,
+                                url: stream.url,
+                                selected: isSelected
+                            }));
+                        });
+
+                        return items;
+                    }
+
+                    buildCSSClass() {
+                        return `vjs-quality-menu-button ${super.buildCSSClass()}`;
+                    }
+                }
+
+                videojs.registerComponent('QualityMenuButton', QualityMenuButton);
+                return QualityMenuButton;
+            };
+
+            // --- Switch Quality Function ---
+            const switchQuality = (resolution, url) => {
+                if (!player) return;
+
+                const currentTime = player.currentTime();
+                const isPaused = player.paused();
+                currentQuality = resolution;
+
+                // Update menu selection
+                const qualityButton = player.controlBar.getChild('QualityMenuButton');
+                if (qualityButton) {
+                    qualityButton.items.forEach(item => {
+                        item.selected(item.resolution.toString() === resolution.toString());
                     });
+                }
 
-                    // Resume from same position
-                    player.one('loadedmetadata', function() {
-                        player.currentTime(currentTime);
-                        if (!wasPaused) {
-                            player.play();
-                        }
-                    });
+                // Change source
+                player.src({ type: 'video/mp4', src: url });
 
-                    currentResolution = resolution;
-
-                    // Persist preferred quality
-                    writeLocalQuality(currentResolution);
-                    writeLocalProgress({
-                        position: Number.isFinite(currentTime) ? currentTime : 0,
-                        duration: Number.isFinite(player.duration()) ? player.duration() : null,
-                        resolution: currentResolution,
-                        updated_at: nowIso(),
-                    });
-                    scheduleSave({
-                        position: Number.isFinite(currentTime) ? currentTime : 0,
-                        duration: Number.isFinite(player.duration()) ? player.duration() : null,
-                        resolution: currentResolution,
-                    });
+                // Restore position
+                player.one('loadedmetadata', () => {
+                    player.currentTime(currentTime);
+                    if (!isPaused) player.play().catch(() => { });
                 });
-            });
 
-            // Progress saving (local + server cache) like YouTube
-            function flushProgress() {
-                const position = player.currentTime();
-                const duration = player.duration();
-                if (!Number.isFinite(position) || position < 0) return;
+                // Save preference
+                localStorage.setItem(`pref_res_${window.watchState.animeId}`, resolution);
+            };
 
-                const payload = {
-                    position,
-                    duration: Number.isFinite(duration) ? duration : null,
-                    resolution: Number.isFinite(currentResolution) ? currentResolution : null,
-                    updated_at: nowIso(),
-                };
+            // --- Initialize Player ---
+            async function initPlayer() {
+                const videoEl = document.getElementById('videoPlayer');
+                const streamsDataEl = document.getElementById('streams-data');
 
-                writeLocalProgress(payload);
-                scheduleSave(payload);
+                if (!videoEl) return;
+
+                // Parse streams data
+                try {
+                    currentStreams = JSON.parse(streamsDataEl?.textContent || '[]');
+                } catch (e) {
+                    currentStreams = [];
+                }
+
+                if (player) player.dispose();
+
+                // Register quality menu component
+                if (currentStreams.length > 0) {
+                    createQualityMenuButton(currentStreams);
+                }
+
+                // Initialize Video.js with custom control bar
+                const controlBarChildren = [
+                    'playToggle',
+                    'volumePanel',
+                    'currentTimeDisplay',
+                    'timeDivider',
+                    'durationDisplay',
+                    'progressControl',
+                    'remainingTimeDisplay',
+                    'customControlSpacer',
+                    'playbackRateMenuButton'
+                ];
+
+                // Add quality button if streams available
+                if (currentStreams.length > 0) {
+                    controlBarChildren.push('QualityMenuButton');
+                }
+
+                controlBarChildren.push('fullscreenToggle');
+
+                player = videojs(videoEl, {
+                    fluid: true,
+                    responsive: true,
+                    playbackRates: [0.5, 1, 1.25, 1.5, 2],
+                    controlBar: { children: controlBarChildren }
+                });
+
+                // Set initial quality
+                if (currentStreams.length > 0) {
+                    const savedRes = localStorage.getItem(`pref_res_${window.watchState.animeId}`);
+                    const initialStream = currentStreams.find(s => s.resolution.toString() === savedRes) || currentStreams[0];
+
+                    if (initialStream) {
+                        currentQuality = initialStream.resolution;
+                        player.src({ type: 'video/mp4', src: initialStream.url });
+                    }
+                }
             }
 
-            player.on('timeupdate', function() {
-                const position = player.currentTime();
-                if (!Number.isFinite(position)) return;
+            // --- AJAX Episode Switcher ---
+            window.handleEpisodeClick = async function (e, element) {
+                e.preventDefault();
+                const url = element.href;
 
-                const second = Math.floor(position);
-                if (second === lastSavedSecond) return;
+                // Visual Loading
+                element.classList.add('opacity-50', 'pointer-events-none');
+                const loading = element.querySelector('.loading-indicator');
+                if (loading) loading.classList.remove('hidden');
 
-                // Save roughly every 5 seconds
-                if (second % 5 === 0) {
-                    lastSavedSecond = second;
-                    flushProgress();
+                try {
+                    const resp = await fetch(url + (url.includes('?') ? '&' : '?') + 'json=1');
+                    if (!resp.ok) throw new Error();
+                    const data = await resp.json();
+
+                    // Sync state before re-init
+                    window.watchState.episodeNumber = element.dataset.episodeNumber;
+                    window.history.pushState({}, '', url);
+
+                    // Update DOM
+                    document.getElementById('player-container').innerHTML = data.html_player;
+                    document.getElementById('video-details').innerHTML = data.html_details;
+
+                    const playlistContainer = element.closest('.space-y-1');
+                    if (playlistContainer) playlistContainer.innerHTML = data.html_playlist;
+
+                    await initPlayer();
+                    setTimeout(() => player.play(), 300);
+                } catch (err) {
+                    window.location.href = url; // Fallback if AJAX fails
                 }
-            });
+                return false;
+            };
 
-            player.on('pause', flushProgress);
-            player.on('ended', flushProgress);
-            document.addEventListener('visibilitychange', function() {
-                if (document.visibilityState === 'hidden') {
-                    flushProgress();
-                }
-            });
-            window.addEventListener('pagehide', flushProgress);
-
-            // Keyboard shortcuts
-            document.addEventListener('keydown', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-                switch(e.key.toLowerCase()) {
-                    case ' ':
-                    case 'k':
-                        e.preventDefault();
-                        if (player.paused()) {
-                            player.play();
-                        } else {
-                            player.pause();
-                        }
-                        break;
-                    case 'f':
-                        e.preventDefault();
-                        if (player.isFullscreen()) {
-                            player.exitFullscreen();
-                        } else {
-                            player.requestFullscreen();
-                        }
-                        break;
-                    case 'm':
-                        e.preventDefault();
-                        player.muted(!player.muted());
-                        break;
-                    case 'arrowleft':
-                        e.preventDefault();
-                        player.currentTime(player.currentTime() - 5);
-                        break;
-                    case 'arrowright':
-                        e.preventDefault();
-                        player.currentTime(player.currentTime() + 5);
-                        break;
-                    case 'arrowup':
-                        e.preventDefault();
-                        player.volume(Math.min(1, player.volume() + 0.1));
-                        break;
-                    case 'arrowdown':
-                        e.preventDefault();
-                        player.volume(Math.max(0, player.volume() - 0.1));
-                        break;
-                }
-            });
-        });
-    </script>
+            document.addEventListener('DOMContentLoaded', initPlayer);
+        </script>
     @endpush
-</x-layout>
+</x-stream-layout>

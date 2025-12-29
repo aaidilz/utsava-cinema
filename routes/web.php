@@ -9,7 +9,6 @@ use App\Http\Controllers\Billing\MidtransCallbackController;
 use App\Http\Controllers\Billing\PaymentController;
 use App\Http\Controllers\Stream\StreamProxyController;
 use App\Http\Controllers\Stream\Watch\WatchController;
-use App\Http\Controllers\Stream\Watch\WatchProgressController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
@@ -26,10 +25,6 @@ Route::get('/anime', [AnimeController::class, 'index'])->name('anime.index');
 Route::get('/anime/{id}', [AnimeController::class, 'show'])->name('anime.show');
 Route::get('/watch/{id}/{episode}', [WatchController::class, 'show'])->name('watch.show');
 Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
-
-// Watch progress (resume like YouTube)
-Route::get('/watch-progress/{id}/{episode}', [WatchProgressController::class, 'show'])->name('watch.progress.show');
-Route::put('/watch-progress/{id}/{episode}', [WatchProgressController::class, 'update'])->name('watch.progress.update');
 
 // Stream proxy for referer support
 Route::get('/stream-proxy/{id}/{episode}', [StreamProxyController::class, 'proxy'])->name('stream.proxy');
@@ -94,9 +89,10 @@ Route::get('/checkout/{subscription}', function (Subscription $subscription) {
     return view('auth.checkout', compact('subscription'));
 })->middleware('auth')->name('pages.checkout');
 Route::middleware('auth')->group(function () {
-    Route::get('/settings', [ProfileController::class, 'edit'])->name('auth.settings');
-    Route::put('/settings', [ProfileController::class, 'update'])->name('auth.settings.update');
-    Route::delete('/settings/avatar', [ProfileController::class, 'destroyAvatar'])->name('auth.settings.destroy-avatar');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('auth.profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('auth.profile.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('auth.profile.destroy-avatar');
+    Route::delete('/profile/banner', [ProfileController::class, 'destroyBanner'])->name('auth.profile.destroy-banner');
 });
 // Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))

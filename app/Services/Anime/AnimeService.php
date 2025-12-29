@@ -282,6 +282,36 @@ class AnimeService
     }
 
     /**
+     * Check if anime has dub available
+     * Checks first episode as representative of the entire series
+     */
+    public function hasDubAvailable(string $id): bool
+    {
+        $key = "anime_has_dub_{$id}";
+        return Cache::remember($key, 60 * 60, function () use ($id) {
+            try {
+                // Fetch first episode streams
+                $resp = Http::get($this->base . "/anime/{$id}/episode/1/stream");
+                if ($resp->ok()) {
+                    $data = $resp->json();
+                    $streams = $data['streams'] ?? [];
+
+                    // Check if any stream has language = 'dub'
+                    foreach ($streams as $stream) {
+                        if (($stream['language'] ?? 'sub') === 'dub') {
+                            return true;
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Anime dub check failed: ' . $e->getMessage());
+            }
+            // Default to false if no dub found or error occurred
+            return false;
+        });
+    }
+
+    /**
      * Get stream URL for episode (legacy, returns best quality)
      */
     public function getStreamUrl(string $id, string $episode): string

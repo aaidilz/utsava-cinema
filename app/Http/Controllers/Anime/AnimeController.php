@@ -58,6 +58,7 @@ class AnimeController extends Controller
     {
         $anime = $this->animeService->getDetail($id);
         $episodes = $this->animeService->getEpisodes($id);
+        $hasDub = $this->animeService->hasDubAvailable($id);
 
         $isInWatchlist = false;
         if (auth()->check()) {
@@ -66,7 +67,7 @@ class AnimeController extends Controller
                 ->exists();
         }
 
-        return view('anime.show', compact('anime', 'episodes', 'isInWatchlist'));
+        return view('anime.show', compact('anime', 'episodes', 'isInWatchlist', 'hasDub'));
     }
 
     /**

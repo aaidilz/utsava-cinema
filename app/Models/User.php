@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'firebase_uid',
         'avatar',
+        'banner',
         'role',
         'is_premium',
         'premium_until',
