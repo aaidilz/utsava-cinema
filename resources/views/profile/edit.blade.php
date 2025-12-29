@@ -239,11 +239,21 @@
                             <!-- Password Section -->
                             <div class="border-t border-white/5 pt-6">
                                 <h3 class="text-lg font-bold mb-4">Security</h3>
-                                <div>
-                                    <label class="block text-sm font-medium text-zinc-400 mb-1">New Password</label>
-                                    <input type="password" name="password" placeholder="Leave empty to keep current"
-                                        class="w-full bg-black/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-                                    <p class="text-xs text-zinc-500 mt-1">Min. 8 characters</p>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-zinc-400 mb-1">New Password</label>
+                                        <input type="password" name="password" placeholder="Leave empty to keep current"
+                                            class="w-full bg-black/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                        <p class="text-xs text-zinc-500 mt-1">Min. 8 characters</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-zinc-400 mb-1">Confirm Password</label>
+                                        <input type="password" name="password_confirmation" placeholder="Confirm your new password"
+                                            class="w-full bg-black/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                                        @error('password')
+                                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
                                 </div>
                             </div>
 

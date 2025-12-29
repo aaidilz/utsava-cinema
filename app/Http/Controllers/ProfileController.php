@@ -34,7 +34,8 @@ final class ProfileController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
-            'password' => ['nullable', 'string', 'min:8'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['nullable'],
             'avatar' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:2048'],
             'banner' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:5120'], // Max 5MB for banner
         ]);
