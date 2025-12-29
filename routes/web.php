@@ -9,10 +9,11 @@ use App\Http\Controllers\Billing\MidtransCallbackController;
 use App\Http\Controllers\Billing\PaymentController;
 use App\Http\Controllers\Stream\StreamProxyController;
 use App\Http\Controllers\Stream\Watch\WatchController;
-use App\Http\Controllers\Stream\Watch\WatchProgressController;
 use App\Http\Controllers\Web\HomeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WatchlistController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Models\Subscription;
 use App\Http\Controllers\Admin\UserController;
 
@@ -30,10 +31,6 @@ Route::get('/watch/{id}/{episode}', [WatchController::class, 'show'])->name('wat
 });
 Route::get('/search', [AnimeController::class, 'search'])->name('anime.search');
 
-// Watch progress (resume like YouTube)
-Route::get('/watch-progress/{id}/{episode}', [WatchProgressController::class, 'show'])->name('watch.progress.show');
-Route::put('/watch-progress/{id}/{episode}', [WatchProgressController::class, 'update'])->name('watch.progress.update');
-
 // Stream proxy for referer support
 Route::get('/stream-proxy/{id}/{episode}', [StreamProxyController::class, 'proxy'])->name('stream.proxy');
 
@@ -44,7 +41,7 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/auth/firebase/verify', [FirebaseAuthController::class, 'verifyToken'])
         ->name('auth.firebase.verify');
-    
+
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 });
@@ -52,10 +49,10 @@ Route::middleware('guest')->group(function () {
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    
-    Route::get('/watchlist', function () {
-        return view('auth.watchlist');
-    })->name('watchlist');
+
+    Route::get('/watchlist', [WatchlistController::class, 'index'])->name('watchlist');
+    Route::post('/watchlist', [WatchlistController::class, 'store'])->name('watchlist.store');
+    Route::delete('/watchlist/{identifier}', [WatchlistController::class, 'destroy'])->name('watchlist.destroy');
 
     Route::post('/payments/initiate', [PaymentController::class, 'initiate'])
         ->name('payments.initiate');
@@ -74,6 +71,21 @@ Route::post('/midtrans/callback', [MidtransCallbackController::class, 'handle'])
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminUserController::class, 'dashboard'])->name('dashboard');
     Route::get('/admin/users/{user}', [AdminUserController::class, 'show'])->name('admin.users.show');
+    Route::get('/admin/users/{user}/edit', [AdminUserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/admin/users/{user}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+
+    Route::get('/admin/reports/revenue', [ReportController::class, 'revenue'])->name('admin.reports.revenue');
+
+    Route::resource('admin/subscriptions', \App\Http\Controllers\Admin\SubscriptionController::class)->names([
+        'index' => 'admin.subscriptions.index',
+        'create' => 'admin.subscriptions.create',
+        'store' => 'admin.subscriptions.store',
+        'show' => 'admin.subscriptions.show',
+        'edit' => 'admin.subscriptions.edit',
+        'update' => 'admin.subscriptions.update',
+        'destroy' => 'admin.subscriptions.destroy',
+    ]);
 });
 
 // test routes for static pages
@@ -92,10 +104,15 @@ Route::get('/checkout/{subscription}', function (Subscription $subscription) {
     return view('auth.checkout', compact('subscription'));
 })->middleware('auth')->name('pages.checkout');
 Route::middleware('auth')->group(function () {
-    Route::get('/settings', [ProfileController::class, 'edit'])->name('auth.settings');
-    Route::put('/settings', [ProfileController::class, 'update'])->name('auth.settings.update');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('auth.profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('auth.profile.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('auth.profile.destroy-avatar');
+    Route::delete('/profile/banner', [ProfileController::class, 'destroyBanner'])->name('auth.profile.destroy-banner');
 });
 // Route::get('/pricing', fn () => view('auth.pricing'))->name('pages.pricing');
 // Route::get('/checkout/{plan}', fn ($plan) => view('auth.checkout', compact('plan')))
 //     ->name('pages.checkout');
 // Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
+
+
+
