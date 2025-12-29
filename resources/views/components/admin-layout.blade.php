@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{{ $title ?? 'Admin' }}</title>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -43,7 +44,8 @@
 
           <form method="POST" action="{{ route('logout') }}" class="hidden sm:block">
             @csrf
-            <button type="submit" class="text-sm px-3 py-2 rounded-lg bg-[#352c6a] hover:bg-white/5 text-[#f2f1ff]">Logout</button>
+            <button type="submit"
+              class="text-sm px-3 py-2 rounded-lg bg-[#352c6a] hover:bg-white/5 text-[#f2f1ff]">Logout</button>
           </form>
         @endauth
       </div>
@@ -53,19 +55,27 @@
       <!-- Sidebar (Admin) -->
       <aside class="w-full md:w-64 bg-[#1f1a45] border-b md:border-b-0 md:border-r border-white/10 flex flex-col">
         <nav class="flex-1 p-4 space-y-2 text-sm">
-          <a href="{{ route('dashboard') }}" class="block px-4 py-2 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-[#352c6a] text-[#f2f1ff]' : 'text-[#c7c4f3] hover:text-[#f2f1ff] hover:bg-white/5' }}">
+          <a href="{{ route('dashboard') }}"
+            class="block px-4 py-2 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-[#352c6a] text-[#f2f1ff]' : 'text-[#c7c4f3] hover:text-[#f2f1ff] hover:bg-white/5' }}">
             Dashboard
           </a>
 
-          <a href="{{ route('dashboard') }}#users" class="block px-4 py-2 rounded-lg text-[#c7c4f3] hover:text-[#f2f1ff] hover:bg-white/5">
+          <a href="{{ route('dashboard') }}#users"
+            class="block px-4 py-2 rounded-lg text-[#c7c4f3] hover:text-[#f2f1ff] hover:bg-white/5">
             Users
           </a>
 
           @if(\Illuminate\Support\Facades\Route::has('admin.users.index'))
-            <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-[#352c6a] text-[#f2f1ff]' : 'text-[#c7c4f3] hover:text-[#f2f1ff] hover:bg-white/5' }}">
+            <a href="{{ route('admin.users.index') }}"
+              class="block px-4 py-2 rounded-lg {{ request()->routeIs('admin.users.*') ? 'bg-[#352c6a] text-[#f2f1ff]' : 'text-[#c7c4f3] hover:text-[#f2f1ff] hover:bg-white/5' }}">
               Users
             </a>
           @endif
+
+          <a href="{{ route('admin.subscriptions.index') }}"
+            class="block px-4 py-2 rounded-lg {{ request()->routeIs('admin.subscriptions.*') ? 'bg-[#352c6a] text-[#f2f1ff]' : 'text-[#c7c4f3] hover:text-[#f2f1ff] hover:bg-white/5' }}">
+            Pricing
+          </a>
         </nav>
 
         <div class="p-4 border-t border-white/10 text-xs text-[#c7c4f3]">
@@ -84,4 +94,5 @@
 
   @stack('scripts')
 </body>
+
 </html>
