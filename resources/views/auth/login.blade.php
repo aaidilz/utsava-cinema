@@ -44,7 +44,7 @@
                 <div class="text-center mb-8">
                     <a href="{{ route('home') }}"
                         class="inline-block text-3xl font-black italic bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent mb-2">
-                        ANIMETION
+                        UTSAVA CINEMA
                     </a>
                     <h1 class="text-xl font-bold text-white italic">Welcome Back!</h1>
                     <p class="text-xs text-zinc-500 mt-1">Please sign in to continue watching.</p>
