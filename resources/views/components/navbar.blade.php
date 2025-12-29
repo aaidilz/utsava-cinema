@@ -110,13 +110,13 @@
 
             <div class="border-t border-zinc-900 my-1"></div>
 
-            <form method="POST" action="{{ route('logout') }}">
-              @csrf
-              <button type="submit"
-                class="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:bg-zinc-900 transition-colors">
-                Sign Out
-              </button>
-            </form>
+           <form id="user-logout-form" method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="button" onclick="confirmLogout('user-logout-form')"
+              class="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:bg-zinc-900 transition-colors">
+              Sign Out
+            </button>
+          </form>
           </div>
         </div>
       @else
