@@ -18,7 +18,11 @@
         <div class="text-lg font-bold tracking-tighter">
           <a href="{{ route('dashboard') }}" class="text-white hover:text-zinc-300 transition-colors">Utsava Cinema</a>
         </div>
+<<<<<<< HEAD
         <span class="text-xs text-zinc-500 hidden sm:inline">Admin Dashboard</span>
+=======
+        <span class="text-xs text-[#c7c4f3] hidden sm:inline">UTSAVA CINEMA</span>
+>>>>>>> 20884d2fae145db66916967c367113c9bdb37c2e
       </div>
 
       <div class="flex items-center gap-3">

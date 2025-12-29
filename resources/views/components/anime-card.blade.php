@@ -73,7 +73,6 @@
                         </svg>
                         {{ $rating }}
                     </span> -->
-                    <span>{{ $episodes }} Eps</span>
                 </div>
             </div>
         </div>

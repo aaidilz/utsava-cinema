@@ -11,7 +11,7 @@
     <!-- Logo -->
     <a href="{{ route('home') }}"
       class="text-xl font-bold tracking-tighter italic bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
-      ANIMETION
+      UTSAVA CINEMA
     </a>
 
     <!-- Desktop Menu -->
