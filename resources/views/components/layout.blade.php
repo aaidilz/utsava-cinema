@@ -25,7 +25,30 @@
     <div class="h-20 lg:hidden"></div>
 
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <script>
+    // Fungsi Pop-out Logout
+    function confirmLogout(formId) {
+        Swal.fire({
+            title: 'Apakah anda yakin?',
+            text: "Sesi Anda akan berakhir dan Anda harus login kembali.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6366f1', 
+            cancelButtonColor: '#ef4444', 
+            confirmButtonText: 'Ya, Keluar!',
+            cancelButtonText: 'Batal',
+            background: '#0d0d0f', 
+            color: '#ffffff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(formId).submit();
+            }
+        })
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       // Handle add to watchlist
       document.addEventListener('click', function (e) {
@@ -44,7 +67,6 @@
           poster_path: btn.dataset.poster,
         };
 
-        // Optimistic UI used to be here, but let's do it smarter
         const isCurrentlyAdded = icon.classList.contains('text-red-500');
 
         if (!isCurrentlyAdded) {
@@ -72,7 +94,6 @@
               icon.classList.add('text-red-500', 'fill-current');
               if (text) text.textContent = 'Remove from List';
             } else if (data.status === 'removed') {
-              // Check if we are on the watchlist page
               if (window.location.pathname.includes('/watchlist')) {
                 const card = btn.closest('.group');
                 if (card) {
@@ -81,7 +102,6 @@
                   card.style.transform = 'scale(0.9)';
                   setTimeout(() => {
                     card.remove();
-                    // Try to update counter
                     const counters = document.querySelectorAll('h1 + span');
                     counters.forEach(c => {
                       const match = c.innerText.match(/(\d+)/);
@@ -101,7 +121,6 @@
           })
           .catch(error => {
             console.error('Error:', error);
-            // Revert UI on error
             if (!isCurrentlyAdded) {
               icon.classList.add('text-zinc-400');
               icon.classList.remove('text-red-500', 'fill-current');
@@ -117,5 +136,4 @@
   </script>
   @stack('scripts')
 </body>
-
 </html>
