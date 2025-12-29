@@ -146,16 +146,6 @@
                     </p>
                 </div>
             </div>
-
-            <!-- Demo Info -->
-            <div class="text-center mt-6 opacity-30 hover:opacity-100 transition-opacity">
-                <p class="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Demo Credentials</p>
-                <div class="flex items-center justify-center gap-4 mt-2 text-xs text-zinc-400 font-mono">
-                    <span>user@example.com</span>
-                    <span>password</span>
-                </div>
-            </div>
-
         </div>
     </div>
 
