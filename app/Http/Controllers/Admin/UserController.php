@@ -102,14 +102,4 @@ final class UserController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'User updated successfully');
     }
-
-    public function destroy(User $user)
-    {
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'Cannot delete yourself');
-        }
-
-        $user->delete();
-        return back()->with('success', 'User deleted successfully');
-    }
 }
