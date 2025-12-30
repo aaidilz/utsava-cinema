@@ -1,18 +1,4 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Profile - {{ config('app.name') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-
-<body class="bg-black text-white font-sans antialiased selection:bg-indigo-500 selection:text-white">
-    <x-navbar />
-
+<x-layout title="Profile - {{ config('app.name') }}">
     <div class="min-h-screen pt-24 pb-12" x-data="{ activeTab: 'settings' }">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
             <div class="relative group">
@@ -23,6 +9,7 @@
                         <div class="w-full h-full bg-gradient-to-r from-indigo-900/50 to-purple-900/50"></div>
                     @endif
                 </div>
+
                 <div class="absolute -bottom-16 left-8">
                     <div class="w-32 h-32 rounded-full ring-4 ring-black bg-zinc-800 overflow-hidden">
                         @if($user->avatar)
@@ -35,6 +22,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="mt-20 px-4">
                 <h1 class="text-3xl font-bold">{{ $user->name }}</h1>
                 <p class="text-zinc-400">{{ $user->email }}</p>
@@ -46,7 +34,7 @@
                 <div class="lg:col-span-2 space-y-8">
                     <div class="bg-zinc-900 border border-white/5 rounded-2xl p-6 md:p-8">
                         <h2 class="text-xl font-bold mb-6">Profile Details</h2>
-                        
+
                         <form id="updateProfileForm" action="{{ route('auth.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                             @csrf
                             @method('PUT')
@@ -97,41 +85,25 @@
                     </div>
                 </div>
 
-  <!-- Sidebar / Subscription -->
+                <!-- Sidebar / Subscription -->
                 <div class="space-y-6">
-                    <!-- Subscription Card -->
-                    <div
-                        class="bg-gradient-to-br from-indigo-900/40 to-black border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-indigo-900/40 to-black border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden">
                         <div class="relative z-10">
                             <h3 class="text-lg font-bold mb-1 text-white">Subscription Status</h3>
                             @if($user->is_premium)
-                                <div
-                                    class="inline-block px-3 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full mb-4 mt-2">
-                                    PREMIUM</div>
+                                <div class="inline-block px-3 py-1 bg-indigo-500 text-white text-xs font-bold rounded-full mb-4 mt-2">PREMIUM</div>
                                 <p class="text-zinc-300 text-sm mb-6">
                                     Your plan is active until <br>
-                                    <span
-                                        class="text-white font-bold text-lg">{{ $user->premium_until?->translatedFormat('d F Y') }}</span>
+                                    <span class="text-white font-bold text-lg">{{ $user->premium_until?->translatedFormat('d F Y') }}</span>
                                 </p>
-                                <a href="{{ route('pages.pricing') }}"
-                                    class="block w-full text-center bg-white text-black font-bold py-2 rounded-lg hover:bg-zinc-200 transition-colors">
-                                    Extend Plan
-                                </a>
+                                <a href="{{ route('pages.pricing') }}" class="block w-full text-center bg-white text-black font-bold py-2 rounded-lg hover:bg-zinc-200 transition-colors">Extend Plan</a>
                             @else
-                                <div
-                                    class="inline-block px-3 py-1 bg-zinc-700 text-zinc-300 text-xs font-bold rounded-full mb-4 mt-2">
-                                    FREE PLAN</div>
-                                <p class="text-zinc-400 text-sm mb-6">Upgrade to Premium to unlock all anime and remove ads.
-                                </p>
-                                <a href="{{ route('pages.pricing') }}"
-                                    class="block w-full text-center bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-                                    Upgrade Now
-                                </a>
+                                <div class="inline-block px-3 py-1 bg-zinc-700 text-zinc-300 text-xs font-bold rounded-full mb-4 mt-2">FREE PLAN</div>
+                                <p class="text-zinc-400 text-sm mb-6">Upgrade to Premium to unlock all anime and remove ads.</p>
+                                <a href="{{ route('pages.pricing') }}" class="block w-full text-center bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 transition-colors">Upgrade Now</a>
                             @endif
                         </div>
                     </div>
-
-
 
                     <div class="bg-red-500/5 border border-red-500/10 rounded-2xl p-6">
                         <h3 class="text-lg font-bold text-red-500 mb-2">Danger Zone</h3>
@@ -150,98 +122,85 @@
         <input type="hidden" name="password" id="passwordInput">
     </form>
 
-    <script>
-        // 1. Toast Notification Setup
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            background: '#18181b',
-            color: '#ffffff'
-        });
-
-        // Tampilkan pesan sukses dari session
-        @if(session('success'))
-            Toast.fire({
-                icon: 'success',
-                title: "{{ session('success') }}"
-            });
-        @endif
-
-        // Tampilkan pesan error validasi
-        @if($errors->any())
-            Swal.fire({
-                icon: 'error',
-                title: 'Gagal Memperbarui',
-                text: 'Periksa kembali data yang Anda masukkan.',
-                background: '#0d0d0f',
-                color: '#ffffff',
-                confirmButtonColor: '#6366f1'
-            });
-        @endif
-
-        // 2. Fungsi Konfirmasi Update
-        function confirmUpdate() {
-            Swal.fire({
-                title: 'Simpan Perubahan?',
-                text: "Data profil Anda akan diperbarui.",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#6366f1',
-                cancelButtonColor: '#3f3f46',
-                confirmButtonText: 'Ya, Simpan!',
-                cancelButtonText: 'Batal',
-                background: '#0d0d0f',
+    @push('scripts')
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: '#18181b',
                 color: '#ffffff'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'Memproses...',
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); },
-                        background: '#0d0d0f',
-                        color: '#ffffff'
-                    });
-                    document.getElementById('updateProfileForm').submit();
-                }
             });
-        }
 
-        // 3. Fungsi Hapus Akun
-        function openDeleteAccountModal() {
-            Swal.fire({
-                title: 'Hapus Akun?',
-                html: `
-                    <div class="text-left space-y-4">
-                        <p class="text-red-500 font-semibold italic text-sm">⚠️ Peringatan: Seluruh data tontonan akan hilang permanen.</p>
-                        <div class="mt-6">
-                            <label class="block text-sm font-medium text-zinc-300 mb-2">Konfirmasi Password:</label>
-                            <input type="password" id="swalPasswordInput" class="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-2 text-white" placeholder="Password Anda">
-                        </div>
-                    </div>
-                `,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#3f3f46',
-                confirmButtonText: 'Hapus Sekarang',
-                cancelButtonText: 'Batal',
-                background: '#0d0d0f',
-                color: '#ffffff'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const pass = document.getElementById('swalPasswordInput').value;
-                    if (!pass) {
-                        Swal.fire({ title: 'Error', text: 'Password wajib diisi!', icon: 'error', background: '#0d0d0f', color: '#ffffff' });
-                        return;
+            @if(session('success'))
+                Toast.fire({ icon: 'success', title: "{{ session('success') }}" });
+            @endif
+
+            @if($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Memperbarui',
+                    text: 'Periksa kembali data yang Anda masukkan.',
+                    background: '#0d0d0f',
+                    color: '#ffffff',
+                    confirmButtonColor: '#6366f1'
+                });
+            @endif
+
+            function confirmUpdate() {
+                Swal.fire({
+                    title: 'Simpan Perubahan?',
+                    text: "Data profil Anda akan diperbarui.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#6366f1',
+                    cancelButtonColor: '#3f3f46',
+                    confirmButtonText: 'Ya, Simpan!',
+                    cancelButtonText: 'Batal',
+                    background: '#0d0d0f',
+                    color: '#ffffff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }, background: '#0d0d0f', color: '#ffffff' });
+                        document.getElementById('updateProfileForm').submit();
                     }
-                    document.getElementById('passwordInput').value = pass;
-                    document.getElementById('deleteAccountForm').submit();
-                }
-            });
-        }
-    </script>
-</body>
-</html
+                });
+            }
+
+            function openDeleteAccountModal() {
+                Swal.fire({
+                    title: 'Hapus Akun?',
+                    html: `
+                        <div class="text-left space-y-4">
+                            <p class="text-red-500 font-semibold italic text-sm">⚠️ Peringatan: Seluruh data tontonan akan hilang permanen.</p>
+                            <div class="mt-6">
+                                <label class="block text-sm font-medium text-zinc-300 mb-2">Konfirmasi Password:</label>
+                                <input type="password" id="swalPasswordInput" class="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-2 text-white" placeholder="Password Anda">
+                            </div>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#3f3f46',
+                    confirmButtonText: 'Hapus Sekarang',
+                    cancelButtonText: 'Batal',
+                    background: '#0d0d0f',
+                    color: '#ffffff'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const pass = document.getElementById('swalPasswordInput').value;
+                        if (!pass) {
+                            Swal.fire({ title: 'Error', text: 'Password wajib diisi!', icon: 'error', background: '#0d0d0f', color: '#ffffff' });
+                            return;
+                        }
+                        document.getElementById('passwordInput').value = pass;
+                        document.getElementById('deleteAccountForm').submit();
+                    }
+                });
+            }
+        </script>
+    @endpush
+</x-layout>
