@@ -19,12 +19,6 @@
             berbagai anime populer dari berbagai genre.
           </p>
 
-          <a href="#"
-             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
-                    border border-[#8b7cf6] text-[#f2f1ff]
-                    hover:bg-[#8b7cf6] hover:text-[#1f1a45] transition">
-            Join Community
-          </a>
         </div>
 
         <!-- BROWSE -->
@@ -48,18 +42,7 @@
             <li>Support</li>
           </ul>
         </div>
-
-        <!-- LEGAL -->
-        <div>
-          <h3 class="text-[#f2f1ff] font-semibold mb-4">Legal</h3>
-          <ul class="space-y-2 text-[#c7c4f3]">
-            <li>Privacy Policy</li>
-            <li>Terms of Service</li>
-            <li>Disclaimer</li>
-          </ul>
-        </div>
-
-      </div>
+</div>
 
       <!-- DIVIDER -->
       <div class="my-10 border-t border-white/10"></div>
@@ -67,7 +50,7 @@
       <!-- BOTTOM -->
       <div class="flex flex-col md:flex-row justify-between gap-4 text-xs text-[#a3a0d9]">
         <p>
-          © {{ date('Y') }} Ustava Cinema. All rights reserved.
+          © {{ date('Y') }} Utsava Cinema. All rights reserved.
         </p>
         <p>
           Made with <span class="text-red-500">❤</span> for anime lovers
