@@ -97,4 +97,44 @@ final class ProfileController extends Controller
 
         return back()->with('success', 'Banner removed.');
     }
+
+    public function destroy(Request $request)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Validasi password untuk konfirmasi
+        $request->validate([
+            'password' => ['required', 'string'],
+        ]);
+
+        // Cek apakah password benar
+        if (!Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'password' => 'Password yang Anda masukkan tidak sesuai.'
+            ])->withInput();
+        }
+
+        // Hapus avatar dan banner jika ada
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+        if ($user->banner) {
+            Storage::disk('public')->delete($user->banner);
+        }
+
+        // Hapus semua watchlist user
+        $user->watchlists()->delete();
+
+        // Logout user
+        Auth::logout();
+
+        // Hapus user
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('home')->with('success', 'Akun Anda berhasil dihapus.');
+    }
 }
