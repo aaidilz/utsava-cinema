@@ -19,7 +19,7 @@
       {{ $slot }}
     </div>
 
-    {{-- <x-footer /> --}}
+    <x-footer />
 
     {{-- Mobile Bottom Nav Spacer --}}
     <div class="h-20 lg:hidden"></div>
