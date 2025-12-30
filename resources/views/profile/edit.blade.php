@@ -130,7 +130,7 @@
                 showConfirmButton: false,
                 timer: 3000,
                 timerProgressBar: true,
-                background: '#18181b',
+                background: 'green',
                 color: '#ffffff'
             });
 
