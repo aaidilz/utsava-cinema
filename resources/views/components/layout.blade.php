@@ -7,6 +7,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{{ $title ?? 'Animetion' }}</title>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   @stack('styles')
 </head>
 
@@ -19,7 +20,7 @@
       {{ $slot }}
     </div>
 
-    {{-- <x-footer /> --}}
+    <x-footer />
 
     {{-- Mobile Bottom Nav Spacer --}}
     <div class="h-20 lg:hidden"></div>

@@ -7,10 +7,43 @@
     <title>Profile - {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 </head>
 
 <body class="bg-black text-white font-sans antialiased selection:bg-indigo-500 selection:text-white">
     <x-navbar />
+   
+
+<body class="bg-black text-white font-sans antialiased selection:bg-indigo-500 selection:text-white">
+    <x-navbar />
+
+    {{-- Success Message --}}
+    @if(session('success'))
+        <div class="fixed top-20 right-4 z-50 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 flex items-center gap-3 max-w-md animate-pulse">
+            <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-emerald-500 text-sm font-medium">{{ session('success') }}</p>
+        </div>
+    @endif
+
+    {{-- Error Messages --}}
+    @if($errors->any())
+        <div class="fixed top-20 right-4 z-50 bg-red-500/10 border border-red-500/30 rounded-xl p-4 max-w-md space-y-2">
+            @foreach($errors->all() as $error)
+                <div class="flex items-center gap-2 text-red-400 text-sm">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ $error }}</span>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    <div class="min-h-screen pt-24 pb-12" x-data="{ activeTab: 'overview' }">
+        {{-- Rest of content --}}
+
 
     <div class="min-h-screen pt-24 pb-12" x-data="{ activeTab: 'overview' }">
         <!-- Banner & Header -->
@@ -301,12 +334,13 @@
                         </div>
                     </div>
 
+                  
                     <!-- Danger Zone -->
                     <div class="bg-red-500/5 border border-red-500/10 rounded-2xl p-6">
                         <h3 class="text-lg font-bold text-red-500 mb-2">Danger Zone</h3>
                         <p class="text-sm text-zinc-500 mb-4">Once you delete your account, there is no going back.
                             Please be certain.</p>
-                        <button type="button" onclick="alert('Delete account functionality coming soon')"
+                        <button type="button" onclick="openDeleteAccountModal()"
                             class="w-full border border-red-500/30 text-red-500 font-medium py-2 rounded-lg hover:bg-red-500/10 transition-colors">
                             Delete Account
                         </button>
@@ -322,7 +356,69 @@
         <form id="deleteBannerForm" action="{{ route('auth.profile.destroy-banner') }}" method="POST" class="hidden">
             @csrf @method('DELETE')
         </form>
+        <form id="deleteAccountForm" action="{{ route('auth.profile.destroy') }}" method="POST" class="hidden">
+            @csrf @method('DELETE')
+            <input type="hidden" name="password" id="passwordInput">
+        </form>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function openDeleteAccountModal() {
+            Swal.fire({
+                title: 'Hapus Akun?',
+                html: `
+                    <div class="text-left space-y-4">
+                        <p class="text-red-500 font-semibold">⚠️ Peringatan: Aksi ini tidak dapat dibatalkan!</p>
+                        <p class="text-sm text-zinc-400">Semua data Anda termasuk:</p>
+                        <ul class="text-sm text-zinc-400 list-disc list-inside space-y-1 ml-2">
+                            <li>Profil & pengaturan</li>
+                            <li>Watchlist Anda</li>
+                            <li>Avatar & Banner</li>
+                        </ul>
+                        <p class="text-sm text-zinc-400 mt-4">akan dihapus secara permanen.</p>
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-zinc-300 mb-2">Masukkan password untuk mengkonfirmasi:</label>
+                            <input type="password" id="swalPasswordInput" class="w-full bg-black/50 border border-red-500/30 rounded-lg px-4 py-2 text-white placeholder-zinc-500 focus:outline-none focus:border-red-500" placeholder="Password Anda">
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Ya, Hapus Akun Saya',
+                cancelButtonText: 'Batal',
+                background: '#0d0d0f',
+                color: '#ffffff',
+                didOpen: () => {
+                    // Focus pada input password
+                    const passwordInput = document.getElementById('swalPasswordInput');
+                    passwordInput.focus();
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const password = document.getElementById('swalPasswordInput').value;
+                    
+                    if (!password.trim()) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Password harus diisi!',
+                            icon: 'error',
+                            background: '#0d0d0f',
+                            color: '#ffffff',
+                            confirmButtonColor: '#ef4444'
+                        });
+                        return;
+                    }
+
+                    // Set password ke form dan submit
+                    document.getElementById('passwordInput').value = password;
+                    document.getElementById('deleteAccountForm').submit();
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

@@ -134,7 +134,7 @@
 </header>
 
 <!-- Mobile Bottom Navigation -->
-<div
+<div x-data="{ mobileMenuOpen: false }"
   class="fixed bottom-0 left-0 w-full h-16 bg-[#0d0d0f]/90 backdrop-blur-xl border-t border-zinc-800 lg:hidden flex items-center justify-around z-50">
   <a href="{{ route('home') }}"
     class="p-2 flex flex-col items-center gap-1 {{ request()->routeIs('home') ? 'text-indigo-400' : 'text-zinc-600' }}">
@@ -162,8 +162,7 @@
       <span class="text-[10px] font-medium">Saved</span>
     </a>
   @endauth
-  <a href="{{ Auth::check() ? route('auth.profile') : route('login') }}"
-    class="p-2 flex flex-col items-center gap-1 {{ request()->routeIs('login') || request()->routeIs('register') || request()->routeIs('auth.profile') ? 'text-white' : 'text-zinc-600' }}">
+  <button @click="mobileMenuOpen = true" class="p-2 flex flex-col items-center gap-1 text-zinc-600 hover:text-white transition-colors">
     @auth
       <div class="w-6 h-6 rounded-full bg-zinc-800 overflow-hidden">
         @if($navAvatar)
@@ -178,6 +177,126 @@
           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
       </svg>
     @endauth
-    <span class="text-[10px] font-medium">{{ Auth::check() ? 'Profile' : 'Account' }}</span>
-  </a>
+    <span class="text-[10px] font-medium">{{ Auth::check() ? 'Menu' : 'Account' }}</span>
+  </button>
+
+  <!-- Mobile Slide-over Drawer -->
+  @auth
+    <div x-show="mobileMenuOpen" @click.outside="mobileMenuOpen = false"
+      class="fixed inset-0 z-50 overflow-hidden lg:hidden">
+      <!-- Backdrop -->
+      <div x-show="mobileMenuOpen" x-transition class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+      <!-- Drawer -->
+      <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="translate-x-full"
+        class="absolute right-0 top-0 h-full w-80 max-w-xs bg-[#0d0d0f] border-l border-zinc-800 shadow-2xl overflow-y-auto">
+
+        <!-- Header -->
+        <div class="sticky top-0 flex items-center justify-between p-4 border-b border-zinc-800 bg-[#0d0d0f]/95 backdrop-blur">
+          <h2 class="text-lg font-bold text-white">Menu</h2>
+          <button @click="mobileMenuOpen = false" class="text-zinc-400 hover:text-white p-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- User Info -->
+        <div class="p-4 border-b border-zinc-800">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-zinc-800 overflow-hidden">
+              @if($navAvatar)
+                <img src="{{ $navAvatar }}" class="w-full h-full object-cover">
+              @else
+                <div class="flex items-center justify-center w-full h-full text-sm text-white font-bold">{{ $userInitial }}</div>
+              @endif
+            </div>
+            <div>
+              <p class="text-sm font-bold text-white truncate">{{ Auth::user()->name }}</p>
+              <p class="text-xs text-zinc-500 truncate">{{ Auth::user()->email }}</p>
+            </div>
+          </div>
+
+          @if(Auth::user()->is_premium)
+            <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+              <svg class="w-3 h-3 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Premium</span>
+            </div>
+          @else
+            <a href="{{ route('pages.pricing') }}"
+              class="block text-center text-[10px] font-bold bg-white text-black px-2 py-1 rounded-full hover:bg-zinc-200 transition-colors">
+              Upgrade to Premium
+            </a>
+          @endif
+        </div>
+
+        <!-- Menu Items -->
+        <nav class="p-2 space-y-1">
+          <a href="{{ route('auth.profile') }}"
+            class="block px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg transition-colors">
+            Profile & Settings
+          </a>
+
+          <a href="{{ route('watchlist') }}"
+            class="block px-4 py-3 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-900 rounded-lg transition-colors">
+            My Watchlist
+          </a>
+
+          @if(Auth::user()->isAdmin())
+            <div class="border-t border-zinc-800 my-2"></div>
+            <a href="{{ route('dashboard') }}"
+              class="block px-4 py-3 text-sm font-medium text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 rounded-lg transition-colors">
+              Admin Dashboard
+            </a>
+          @endif
+
+          <div class="border-t border-zinc-800 my-2"></div>
+
+          <!-- Sign Out -->
+          <form id="mobile-logout-form" method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="button" onclick="confirmLogout('mobile-logout-form')"
+              class="w-full text-left px-4 py-3 text-sm font-medium text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+              Sign Out
+            </button>
+          </form>
+        </nav>
+      </div>
+    </div>
+  @else
+    <!-- Non-authenticated menu -->
+    <div x-show="mobileMenuOpen" @click.outside="mobileMenuOpen = false"
+      class="fixed inset-0 z-50 overflow-hidden lg:hidden">
+      <div x-show="mobileMenuOpen" x-transition class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+      <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition ease-in duration-300" x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="translate-x-full"
+        class="absolute right-0 top-0 h-full w-80 max-w-xs bg-[#0d0d0f] border-l border-zinc-800 shadow-2xl">
+        <div class="flex items-center justify-between p-4 border-b border-zinc-800">
+          <h2 class="text-lg font-bold text-white">Account</h2>
+          <button @click="mobileMenuOpen = false" class="text-zinc-400 hover:text-white p-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <nav class="p-4 space-y-2">
+          <a href="{{ route('login') }}"
+            class="block px-4 py-3 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg text-center transition-colors">
+            Login
+          </a>
+          <a href="{{ route('register') }}"
+            class="block px-4 py-3 text-sm font-bold text-black bg-white hover:bg-zinc-200 rounded-lg text-center transition-colors">
+            Get Started
+          </a>
+        </nav>
+      </div>
+    </div>
+  @endauth
 </div>
