@@ -2,6 +2,7 @@
 
     @push('head')
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        
     @endpush
 
     <main class="min-h-screen pt-24 pb-20 px-4 md:px-6 container mx-auto max-w-7xl">
@@ -195,6 +196,95 @@
                     observer.observe(sentinel);
                 }
             });
+
+            // ...existing code...
+
+    @push('scripts')
+        <script>
+            // ...existing infinite scroll code...
+
+            // Toast Notification Function
+            function showToast(message, type = 'success') {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: type === 'success' 
+                        ? "linear-gradient(to right, #10b981, #059669)" 
+                        : "linear-gradient(to right, #ef4444, #dc2626)",
+                    stopOnFocus: true,
+                    className: "text-white font-medium",
+                    onClick: function() {}
+                }).showToast();
+            }
+
+            // Handle Add/Remove from Watchlist
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.add-to-watchlist');
+                if (!btn) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const icon = btn.querySelector('svg');
+                const id = btn.dataset.id;
+                const title = btn.dataset.title;
+                const poster = btn.dataset.poster;
+
+                const data = {
+                    identifier_id: id,
+                    anime_title: title,
+                    poster_path: poster,
+                };
+
+                const isCurrentlyAdded = icon.classList.contains('text-red-500');
+
+                // Optimistic UI update
+                if (!isCurrentlyAdded) {
+                    icon.classList.remove('text-zinc-400');
+                    icon.classList.add('text-red-500', 'fill-current');
+                } else {
+                    icon.classList.add('text-zinc-400');
+                    icon.classList.remove('text-red-500', 'fill-current');
+                }
+
+                fetch('/watchlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'added') {
+                            icon.classList.remove('text-zinc-400');
+                            icon.classList.add('text-red-500', 'fill-current');
+                            showToast(`✓ ${title} berhasil ditambahkan ke watchlist!`, 'success');
+                        } else if (data.status === 'removed') {
+                            icon.classList.add('text-zinc-400');
+                            icon.classList.remove('text-red-500', 'fill-current');
+                            showToast(`✓ ${title} dihapus dari watchlist!`, 'success');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Revert UI on error
+                        if (!isCurrentlyAdded) {
+                            icon.classList.add('text-zinc-400');
+                            icon.classList.remove('text-red-500', 'fill-current');
+                        } else {
+                            icon.classList.remove('text-zinc-400');
+                            icon.classList.add('text-red-500', 'fill-current');
+                        }
+                        showToast('✗ Gagal memproses permintaan. Silakan coba lagi!', 'error');
+                    });
+            });
+        </script>
+    @endpush
+
         </script>
     @endpush
 
