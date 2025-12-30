@@ -18,6 +18,7 @@ use App\Models\Subscription;
 use App\Http\Controllers\Admin\UserController;
 
 
+
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', [HomeController::class, 'index']);
@@ -116,5 +117,5 @@ Route::middleware('auth')->group(function () {
 //     ->name('pages.checkout');
 // Route::get('/settings', fn () => view('auth.settings'))->middleware('auth')->name('auth.settings');
 
-
+Route::post('/watchlist', [WatchlistController::class, 'store'])->middleware('auth')->name('watchlist.store');
 
