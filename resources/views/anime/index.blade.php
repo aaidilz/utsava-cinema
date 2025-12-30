@@ -2,7 +2,6 @@
 
     @push('head')
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        
     @endpush
 
     <main class="min-h-screen pt-24 pb-20 px-4 md:px-6 container mx-auto max-w-7xl">
@@ -80,19 +79,6 @@
             </form>
         </div>
 
-        <!-- Filters (Optional - Placeholder for now) -->
-        {{-- <div class="flex items-center justify-center gap-2 mb-8 overflow-x-auto pb-4 hide-scrollbar">
-            <button
-                class="px-4 py-2 bg-indigo-600 text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-lg shadow-indigo-500/30">All</button>
-            <button
-                class="px-4 py-2 bg-[#1a1a20] hover:bg-[#25252b] text-zinc-400 hover:text-white border border-white/5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors">Trending</button>
-            <button
-                class="px-4 py-2 bg-[#1a1a20] hover:bg-[#25252b] text-zinc-400 hover:text-white border border-white/5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors">New
-                Season</button>
-            <button
-                class="px-4 py-2 bg-[#1a1a20] hover:bg-[#25252b] text-zinc-400 hover:text-white border border-white/5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors">Action</button>
-        </div> --}}
-
         <!-- Grid -->
         <div id="anime-grid"
             class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-6 gap-y-10">
@@ -124,16 +110,29 @@
             </div>
             <p id="no-more-results" class="hidden text-zinc-600 text-sm">No more anime to load.</p>
         </div>
-
-        <!-- Pagination (if available) -->
-        <div class="mt-12 flex justify-center">
-            {{-- Laravel Pagination links usually go here --}}
-            {{-- {{ $animes->links() }} --}}
-        </div>
     </main>
 
     @push('scripts')
         <script>
+            // Global state untuk tracking pending requests
+            const watchlistPendingRequests = new Set();
+
+            // Toast Notification Function
+            function showToast(message, type = 'success') {
+                Toastify({
+                    text: message,
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: type === 'success' 
+                        ? "linear-gradient(to right, #10b981, #059669)" 
+                        : "linear-gradient(to right, #ef4444, #dc2626)",
+                    stopOnFocus: true,
+                    className: "text-white font-medium",
+                    onClick: function() {}
+                }).showToast();
+            }
+
             document.addEventListener('DOMContentLoaded', function () {
                 let page = 1;
                 let hasNext = true;
@@ -164,11 +163,8 @@
                             if (response.ok) {
                                 const data = await response.json();
                                 if (data.html) {
-                                    // Create a temporary container
                                     const temp = document.createElement('div');
                                     temp.innerHTML = data.html;
-
-                                    // Append children to grid
                                     while (temp.firstChild) {
                                         grid.appendChild(temp.firstChild);
                                     }
@@ -188,103 +184,93 @@
                         }
                     }
                 }, {
-                    rootMargin: '200px', // Trigger before reaching bottom
+                    rootMargin: '200px',
                     threshold: 0.1
                 });
 
                 if (sentinel) {
                     observer.observe(sentinel);
                 }
-            });
 
-            // ...existing code...
+                // Handle Add/Remove from Watchlist - DELEGATED
+                grid.addEventListener('click', function(e) {
+                    const btn = e.target.closest('.add-to-watchlist');
+                    if (!btn) return;
 
-    @push('scripts')
-        <script>
-            // ...existing infinite scroll code...
+                    e.preventDefault();
+                    e.stopPropagation();
 
-            // Toast Notification Function
-            function showToast(message, type = 'success') {
-                Toastify({
-                    text: message,
-                    duration: 3000,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: type === 'success' 
-                        ? "linear-gradient(to right, #10b981, #059669)" 
-                        : "linear-gradient(to right, #ef4444, #dc2626)",
-                    stopOnFocus: true,
-                    className: "text-white font-medium",
-                    onClick: function() {}
-                }).showToast();
-            }
+                    const id = btn.dataset.id;
+                    
+                    // Prevent duplicate requests
+                    if (watchlistPendingRequests.has(id)) {
+                        return;
+                    }
 
-            // Handle Add/Remove from Watchlist
-            document.addEventListener('click', function(e) {
-                const btn = e.target.closest('.add-to-watchlist');
-                if (!btn) return;
+                    const icon = btn.querySelector('svg');
+                    const title = btn.dataset.title;
+                    const poster = btn.dataset.poster;
 
-                e.preventDefault();
-                e.stopPropagation();
+                    const data = {
+                        identifier_id: id,
+                        anime_title: title,
+                        poster_path: poster,
+                    };
 
-                const icon = btn.querySelector('svg');
-                const id = btn.dataset.id;
-                const title = btn.dataset.title;
-                const poster = btn.dataset.poster;
+                    const isCurrentlyAdded = icon.classList.contains('text-red-500');
 
-                const data = {
-                    identifier_id: id,
-                    anime_title: title,
-                    poster_path: poster,
-                };
+                    // Mark as pending
+                    watchlistPendingRequests.add(id);
+                    btn.disabled = true;
 
-                const isCurrentlyAdded = icon.classList.contains('text-red-500');
+                    // Optimistic UI update
+                    if (!isCurrentlyAdded) {
+                        icon.classList.remove('text-zinc-400');
+                        icon.classList.add('text-red-500', 'fill-current');
+                    } else {
+                        icon.classList.add('text-zinc-400');
+                        icon.classList.remove('text-red-500', 'fill-current');
+                    }
 
-                // Optimistic UI update
-                if (!isCurrentlyAdded) {
-                    icon.classList.remove('text-zinc-400');
-                    icon.classList.add('text-red-500', 'fill-current');
-                } else {
-                    icon.classList.add('text-zinc-400');
-                    icon.classList.remove('text-red-500', 'fill-current');
-                }
-
-                fetch('/watchlist', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify(data)
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'added') {
-                            icon.classList.remove('text-zinc-400');
-                            icon.classList.add('text-red-500', 'fill-current');
-                            showToast(`✓ ${title} berhasil ditambahkan ke watchlist!`, 'success');
-                        } else if (data.status === 'removed') {
-                            icon.classList.add('text-zinc-400');
-                            icon.classList.remove('text-red-500', 'fill-current');
-                            showToast(`✓ ${title} dihapus dari watchlist!`, 'success');
-                        }
+                    fetch('/watchlist', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(data)
                     })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        // Revert UI on error
-                        if (!isCurrentlyAdded) {
-                            icon.classList.add('text-zinc-400');
-                            icon.classList.remove('text-red-500', 'fill-current');
-                        } else {
-                            icon.classList.remove('text-zinc-400');
-                            icon.classList.add('text-red-500', 'fill-current');
-                        }
-                        showToast('✗ Gagal memproses permintaan. Silakan coba lagi!', 'error');
-                    });
+                        .then(response => response.json())
+                        .then(result => {
+                            if (result.status === 'added') {
+                                icon.classList.remove('text-zinc-400');
+                                icon.classList.add('text-red-500', 'fill-current');
+                                showToast(`✓ ${title} berhasil ditambahkan ke watchlist!`, 'success');
+                            } else if (result.status === 'removed') {
+                                icon.classList.add('text-zinc-400');
+                                icon.classList.remove('text-red-500', 'fill-current');
+                                showToast(`✓ ${title} dihapus dari watchlist!`, 'success');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // Revert UI on error
+                            if (!isCurrentlyAdded) {
+                                icon.classList.add('text-zinc-400');
+                                icon.classList.remove('text-red-500', 'fill-current');
+                            } else {
+                                icon.classList.remove('text-zinc-400');
+                                icon.classList.add('text-red-500', 'fill-current');
+                            }
+                            showToast('✗ Gagal memproses permintaan. Silakan coba lagi!', 'error');
+                        })
+                        .finally(() => {
+                            // Remove from pending
+                            watchlistPendingRequests.delete(id);
+                            btn.disabled = false;
+                        });
+                });
             });
-        </script>
-    @endpush
-
         </script>
     @endpush
 
