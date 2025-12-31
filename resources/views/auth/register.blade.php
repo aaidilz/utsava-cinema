@@ -42,7 +42,7 @@
                 <div class="text-center mb-8">
                     <a href="{{ route('home') }}"
                         class="inline-block text-3xl font-black italic bg-gradient-to-r from-pink-400 to-indigo-400 bg-clip-text text-transparent mb-2">
-                        ANIMETION
+                        UTSAVA CINEMA
                     </a>
                     <h1 class="text-xl font-bold text-white italic">Join the Club!</h1>
                     <p class="text-xs text-zinc-500 mt-1">Create an account to start your journey.</p>
@@ -95,16 +95,6 @@
                         <input type="password" name="password_confirmation" required
                             class="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 focus:border-indigo-500/50 focus:bg-black/40 outline-none transition-all"
                             placeholder="Repeat password">
-                    </div>
-
-                    <div class="flex items-start gap-2 ml-1 pt-2">
-                        <input type="checkbox" name="agree_terms" id="agree_terms" required
-                            class="mt-0.5 w-4 h-4 rounded bg-zinc-800 border-zinc-700 accent-indigo-500">
-                        <label for="agree_terms" class="text-xs text-zinc-400 select-none">
-                            I agree to the <a href="#" class="text-indigo-400 hover:text-indigo-300">Terms of
-                                Service</a> and <a href="#" class="text-indigo-400 hover:text-indigo-300">Privacy
-                                Policy</a>
-                        </label>
                     </div>
 
                     <button type="submit"

@@ -17,9 +17,6 @@
                             'id' => $item->identifier_id,
                             'title' => $item->anime_title,
                             'poster_path' => $item->poster_path,
-                            // Rating/Year might not be stored in watchlist, so we skip or placeholder
-                            'rating' => '?',
-                            'episodes' => '?'
                         ];
                     @endphp
                     <x-anime-card :anime="$animeData" />

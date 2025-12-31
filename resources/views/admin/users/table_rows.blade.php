@@ -58,6 +58,6 @@
     </tr>
 @empty
     <tr>
-        <td colspan="6" class="px-4 py-6 text-center text-[#c7c4f3]">Tidak ada user.</td>
+        <td colspan="6" class="px-4 py-6 text-center text-[#c7c4f3]">No users found.</td>
     </tr>
 @endforelse

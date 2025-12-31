@@ -5,7 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>{{ $title ?? 'Animetion' }}</title>
+  <title>{{ $title ?? 'Utsava Cinema' }}</title>
+  <title>{{ $title ?? 'Utsava Cinema' }}</title>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
   @stack('styles')
 </head>
@@ -116,6 +117,41 @@
     });
   </script>
   @stack('scripts')
+  @if(session('success'))
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        window.Toastify({
+          text: "{{ session('success') }}",
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "right",
+          stopOnFocus: true,
+          style: {
+            background: "linear-gradient(to right, #00b09b, #96c93d)",
+          },
+        }).showToast();
+      });
+    </script>
+  @endif
+
+  @if(session('error'))
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        window.Toastify({
+          text: "{{ session('error') }}",
+          duration: 3000,
+          close: true,
+          gravity: "top",
+          position: "right",
+          stopOnFocus: true,
+          style: {
+            background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+          },
+        }).showToast();
+      });
+    </script>
+  @endif
 </body>
 
 </html>

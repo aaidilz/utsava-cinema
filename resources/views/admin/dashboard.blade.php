@@ -2,27 +2,27 @@
     <div class="space-y-6">
         <div>
             <h1 class="text-2xl font-bold">Dashboard</h1>
-            <p class="text-sm text-[#c7c4f3]">Ringkasan performa platform</p>
+            <p class="text-sm text-[#c7c4f3]">Platform performance overview</p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-[#352c6a] border border-white/10 rounded-xl p-5">
-                <p class="text-sm text-[#c7c4f3]">Total User</p>
+                <p class="text-sm text-[#c7c4f3]">Total Users</p>
                 <p class="text-3xl font-bold">{{ number_format((int) $totalUsers) }}</p>
             </div>
             <div class="bg-[#352c6a] border border-white/10 rounded-xl p-5">
-                <p class="text-sm text-[#c7c4f3]">Total Transaksi</p>
+                <p class="text-sm text-[#c7c4f3]">Total Transactions</p>
                 <p class="text-3xl font-bold">{{ number_format((int) $totalTransactions) }}</p>
             </div>
             <div class="bg-[#352c6a] border border-white/10 rounded-xl p-5">
-                <p class="text-sm text-[#c7c4f3]">Total Pendapatan</p>
+                <p class="text-sm text-[#c7c4f3]">Total Revenue</p>
                 <p class="text-3xl font-bold">Rp {{ number_format((float) $totalRevenue, 0, ',', '.') }}</p>
-                <p class="text-xs text-[#c7c4f3] mt-1">Dihitung dari transaksi berstatus success</p>
+                <p class="text-xs text-[#c7c4f3] mt-1">Calculated from successful transactions</p>
             </div>
             <div class="bg-[#352c6a] border border-white/10 rounded-xl p-5">
-                <p class="text-sm text-[#c7c4f3]">User Aktif (Subscription)</p>
+                <p class="text-sm text-[#c7c4f3]">Active Users (Subscription)</p>
                 <p class="text-3xl font-bold">{{ number_format((int) $activeSubscribers) }}</p>
-                <p class="text-xs text-[#c7c4f3] mt-1">Premium sampai tanggal yang masih valid</p>
+                <p class="text-xs text-[#c7c4f3] mt-1">Premium until valid date</p>
             </div>
         </div>
 
@@ -34,30 +34,30 @@
                         d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                     </path>
                 </svg>
-                Laporan Pendapatan
+                Revenue Report
             </a>
         </div>
 
         <div id="users" class="bg-[#352c6a] border border-white/10 rounded-2xl p-6">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
                 <div>
-                    <h2 class="text-lg font-semibold">Daftar User</h2>
+                    <h2 class="text-lg font-semibold">User List</h2>
                     <p class="text-xs text-[#c7c4f3]">Total: {{ $users->total() }}</p>
                 </div>
 
                 <form method="GET" action="{{ route('dashboard') }}" class="flex flex-col sm:flex-row gap-3">
-                    <input name="q" value="{{ $search }}" placeholder="Cari nama/email..."
+                    <input name="q" value="{{ $search }}" placeholder="Search name/email..."
                         class="w-full sm:w-64 border border-white/10 rounded-lg px-3 py-2 bg-[#2b235a] text-white placeholder:text-[#a3a0d9]" />
 
                     <select name="subscription"
                         class="w-full sm:w-44 border border-white/10 rounded-lg px-3 py-2 bg-[#2b235a] text-white">
-                        <option value="all" {{ $subscriptionStatus === 'all' ? 'selected' : '' }}>Semua</option>
+                        <option value="all" {{ $subscriptionStatus === 'all' ? 'selected' : '' }}>All</option>
                         <option value="premium" {{ $subscriptionStatus === 'premium' ? 'selected' : '' }}>Premium</option>
                         <option value="free" {{ $subscriptionStatus === 'free' ? 'selected' : '' }}>Free</option>
                     </select>
 
                     <button class="bg-[#8b7cf6] hover:bg-[#7a6ae5] text-white px-4 py-2 rounded-lg">
-                        Terapkan
+                        Apply
                     </button>
                 </form>
             </div>
@@ -66,12 +66,12 @@
                 <table class="w-full text-sm">
                     <thead class="text-xs uppercase tracking-wider text-[#c7c4f3] border-b border-white/10">
                         <tr>
-                            <th class="px-4 py-3 text-left">Nama</th>
+                            <th class="px-4 py-3 text-left">Name</th>
                             <th class="px-4 py-3 text-left">Email</th>
                             <th class="px-4 py-3 text-left">Subscription</th>
-                            <th class="px-4 py-3 text-left">Billing Terakhir</th>
-                            <th class="px-4 py-3 text-left">Premium Sampai</th>
-                            <th class="px-4 py-3 text-left">Aksi</th>
+                            <th class="px-4 py-3 text-left">Last Billing</th>
+                            <th class="px-4 py-3 text-left">Premium Until</th>
+                            <th class="px-4 py-3 text-left">Act</th>
                         </tr>
                     </thead>
 

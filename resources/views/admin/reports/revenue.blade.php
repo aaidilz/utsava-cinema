@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Pendapatan - {{ $date->translatedFormat('F Y') }}</title>
+    <title>Revenue Report - {{ $date->translatedFormat('F Y') }}</title>
     <style>
         body {
             font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -147,31 +147,31 @@
 <body>
 
     <div class="print-controls">
-        <a href="{{ route('dashboard') }}" class="btn btn-secondary">&larr; Kembali ke Dashboard</a>
+        <a href="{{ route('dashboard') }}" class="btn btn-secondary">&larr; Back to Dashboard</a>
 
         <div class="filter-form">
             <form action="{{ route('admin.reports.revenue') }}" method="GET">
                 <input type="month" name="month" value="{{ $month }}" class="form-select" onchange="this.form.submit()">
             </form>
             <button onclick="window.print()" class="btn btn-primary">
-                Cetak PDF / Print
+                Print PDF / Print
             </button>
         </div>
     </div>
 
     <div class="header">
-        <h1>Laporan Pendapatan Bulanan</h1>
+        <h1>Monthly Revenue Report</h1>
         <p>{{ $date->translatedFormat('F Y') }}</p>
-        <p style="font-size: 0.875rem; margin-top: 0.25rem;">Dicetak pada: {{ now()->format('d M Y H:i:s') }}</p>
+        <p style="font-size: 0.875rem; margin-top: 0.25rem;">Printed at: {{ now()->format('d M Y H:i:s') }}</p>
     </div>
 
     <div class="summary-grid">
         <div class="card">
-            <div class="card-label">Total Transaksi</div>
+            <div class="card-label">Total Transactions</div>
             <div class="card-value">{{ number_format($totalTransactions) }}</div>
         </div>
         <div class="card">
-            <div class="card-label">Total Pendapatan</div>
+            <div class="card-label">Total Revenue</div>
             <div class="card-value">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</div>
         </div>
     </div>
@@ -179,9 +179,9 @@
     <table>
         <thead>
             <tr>
-                <th>Tanggal</th>
-                <th class="text-right">Jumlah Transaksi</th>
-                <th class="text-right">Pendapatan</th>
+                <th>Date</th>
+                <th class="text-right">Total Transactions</th>
+                <th class="text-right">Revenue</th>
             </tr>
         </thead>
         <tbody>
@@ -193,8 +193,8 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="3" style="text-align: center; color: #a0aec0; padding: 2rem;">Belum ada data transaksi
-                        untuk bulan ini.</td>
+                    <td colspan="3" style="text-align: center; color: #a0aec0; padding: 2rem;">No transaction data for this
+                        month.</td>
                 </tr>
             @endforelse
             @if($dailyRevenue->isNotEmpty())
