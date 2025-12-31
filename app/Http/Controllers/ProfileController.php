@@ -34,7 +34,7 @@ final class ProfileController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($user->id),
             ],
-            'password' => ['nullable', 'string', 'min:8'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'avatar' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:2048'],
             'banner' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:5120'], // Max 5MB for banner
         ]);
@@ -95,5 +95,19 @@ final class ProfileController extends Controller
         }
 
         return back()->with('success', 'Banner removed.');
+    }
+
+    public function destroy()
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        Auth::logout();
+
+        if ($user->delete()) {
+            return redirect()->route('home')->with('success', 'Account deleted successfully.');
+        }
+
+        return back()->with('error', 'Failed to delete account.');
     }
 }

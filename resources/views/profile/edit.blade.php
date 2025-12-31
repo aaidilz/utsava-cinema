@@ -100,10 +100,10 @@
                         <h2 class="text-xl font-bold flex items-center gap-2">
                             <svg class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             </svg>
-                            Daftar Tontonan
+                            Watchlist
                         </h2>
-                        <button @click="activeTab = 'watchlist'" class="text-sm text-zinc-400 hover:text-white">Lihat
-                            Semua</button>
+                        <button @click="activeTab = 'watchlist'" class="text-sm text-zinc-400 hover:text-white">See
+                            All</button>
                     </div>
 
                     @if($watchlist->count() > 0)
@@ -123,7 +123,7 @@
                         </div>
                     @else
                         <div class="text-center py-12 bg-zinc-900/50 rounded-xl border border-dashed border-zinc-800">
-                            <p class="text-zinc-500">Daftar tontonan masih kosong.</p>
+                            <p class="text-zinc-500">Watchlist is empty :(</p>
                         </div>
                     @endif
                 </section>
@@ -202,7 +202,7 @@
                                     </div>
                                     @if($user->avatar)
                                         <button type="submit" form="deleteAvatarForm"
-                                            class="text-xs text-red-400 mt-2 hover:underline">Hapus Avatar</button>
+                                            class="text-xs text-red-400 mt-2 hover:underline">delete Avatar</button>
                                     @endif
                                 </div>
 
@@ -217,7 +217,7 @@
                                     " />
                                     @if($user->banner)
                                         <button type="submit" form="deleteBannerForm"
-                                            class="text-xs text-red-400 mt-2 hover:underline">Hapus Banner</button>
+                                            class="text-xs text-red-400 mt-2 hover:underline">delete Banner</button>
                                     @endif
                                 </div>
                             </div>
@@ -244,6 +244,12 @@
                                     <input type="password" name="password" placeholder="Leave empty to keep current"
                                         class="w-full bg-black/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
                                     <p class="text-xs text-zinc-500 mt-1">Min. 8 characters</p>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-zinc-400 mb-1">Confirm Password</label>
+                                    <input type="password" name="password_confirmation"
+                                        placeholder="Repeat new password"
+                                        class="w-full bg-black/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
                                 </div>
                             </div>
 
@@ -296,10 +302,30 @@
                         <h3 class="text-lg font-bold text-red-500 mb-2">Danger Zone</h3>
                         <p class="text-sm text-zinc-500 mb-4">Once you delete your account, there is no going back.
                             Please be certain.</p>
-                        <button type="button" onclick="alert('Delete account functionality coming soon')"
+                        <button type="button" onclick="confirmDeleteAccount()"
                             class="w-full border border-red-500/30 text-red-500 font-medium py-2 rounded-lg hover:bg-red-500/10 transition-colors">
                             Delete Account
                         </button>
+                        <script>
+                            function confirmDeleteAccount() {
+                                Swal.fire({
+                                    title: 'Are you absolutely sure?',
+                                    text: "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#d33',
+                                    cancelButtonColor: '#3085d6',
+                                    confirmButtonText: 'Yes, delete my account',
+                                    cancelButtonText: 'Cancel',
+                                    background: '#0d0d0f',
+                                    color: '#ffffff'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        document.getElementById('deleteAccountForm').submit();
+                                    }
+                                })
+                            }
+                        </script>
                     </div>
                 </div>
             </div>
@@ -310,6 +336,9 @@
             @csrf @method('DELETE')
         </form>
         <form id="deleteBannerForm" action="{{ route('auth.profile.destroy-banner') }}" method="POST" class="hidden">
+            @csrf @method('DELETE')
+        </form>
+        <form id="deleteAccountForm" action="{{ route('auth.profile.destroy') }}" method="POST" class="hidden">
             @csrf @method('DELETE')
         </form>
     </div>

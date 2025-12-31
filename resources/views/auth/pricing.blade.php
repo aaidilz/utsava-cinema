@@ -16,8 +16,8 @@
                     Unlock the Full Power of Anime
                 </h1>
                 <p class="text-lg text-zinc-400 leading-relaxed">
-                    Nikmati streaming tanpa batas, kualitas 4K, dan akses eksklusif ke konten premium. Batalkan kapan
-                    saja.
+                    Stream without limits, enjoy highest quality, and access exclusive premium content. Cancel anytime.
+                    No ads, no interruptions, just pure entertainment.
                 </p>
             </div>
 
@@ -41,7 +41,7 @@
                                     {{ number_format((float) $subscription->price, 0, ',', '.') }}
                                 </span>
                             </div>
-                            <p class="text-sm text-zinc-500 mt-2">Per {{ (int) $subscription->duration_days }} hari</p>
+                            <p class="text-sm text-zinc-500 mt-2">{{ (int) $subscription->duration_days }} Days</p>
                         </div>
 
                         <ul class="space-y-4 mb-8">
@@ -51,7 +51,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
                                 </svg>
-                                Akses seluruh anime premium
+                                Access to all premium anime
                             </li>
                             <li class="flex items-center gap-3 text-sm text-zinc-300">
                                 <svg class="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24"
@@ -59,7 +59,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
                                 </svg>
-                                Kualitas streaming hingga 4K
+                                Highest quality streaming
                             </li>
                             <li class="flex items-center gap-3 text-sm text-zinc-300">
                                 <svg class="w-5 h-5 text-indigo-400 flex-shrink-0" fill="none" viewBox="0 0 24 24"
@@ -67,33 +67,32 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M5 13l4 4L19 7" />
                                 </svg>
-                                Bebas iklan selamanya
+                                No ads, no interruptions
                             </li>
                         </ul>
 
                         <a href="{{ route('pages.checkout', ['subscription' => $subscription->id]) }}"
                             class="block w-full py-4 rounded-xl bg-white text-black font-bold text-center hover:bg-zinc-200 transition-colors">
-                            Pilih Paket
+                            Choose Plan
                         </a>
                     </div>
                 @empty
                     <div class="md:col-span-3 text-center py-20">
-                        <p class="text-zinc-500">Belum ada paket tersedia saat ini.</p>
+                        <p class="text-zinc-500">No packages available at the moment.</p>
                     </div>
                 @endforelse
             </div>
 
             <!-- FAQ or Trust Badges could go here -->
-            <div class="mt-20 text-center border-t border-white/5 pt-12">
+            <!-- <div class="mt-20 text-center border-t border-white/5 pt-12">
                 <p class="text-xs text-zinc-600 uppercase tracking-widest font-semibold mb-6">Trusted by Payment
                     Partners</p>
                 <div class="flex justify-center gap-8 grayscale opacity-50">
-                    <!-- Placeholder Icons for payment methods -->
                     <div class="h-8 w-20 bg-zinc-800 rounded"></div>
                     <div class="h-8 w-20 bg-zinc-800 rounded"></div>
                     <div class="h-8 w-20 bg-zinc-800 rounded"></div>
                 </div>
-            </div>
+            </div> -->
         </main>
     </div>
 </x-layout>

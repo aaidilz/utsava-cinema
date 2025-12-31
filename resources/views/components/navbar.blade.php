@@ -8,10 +8,10 @@
   class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#0d0d0f]/80 backdrop-blur-md border-b border-white/5">
   <div class="container mx-auto max-w-7xl px-4 md:px-6 h-16 flex items-center justify-between">
 
-    <!-- Logo -->
     <a href="{{ route('home') }}"
-      class="text-xl font-bold tracking-tighter italic bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">
-      ANIMETION
+    class="text-xl font-bold tracking-tighter italic bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text
+    text-transparent">
+    UTSAVA CINEMA
     </a>
 
     <!-- Desktop Menu -->
@@ -110,13 +110,34 @@
 
             <div class="border-t border-zinc-900 my-1"></div>
 
-            <form method="POST" action="{{ route('logout') }}">
+            <form id="logout-form" method="POST" action="{{ route('logout') }}">
               @csrf
-              <button type="submit"
+              <button type="button" onclick="confirmLogout(event)"
                 class="w-full text-left px-4 py-2 text-xs font-medium text-red-500 hover:bg-zinc-900 transition-colors">
                 Sign Out
               </button>
             </form>
+            <script>
+              function confirmLogout(e) {
+                e.preventDefault();
+                Swal.fire({
+                  title: 'Are you sure?',
+                  text: "You will be signed out of your account.",
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: '#d33',
+                  cancelButtonColor: '#3085d6',
+                  confirmButtonText: 'Yes, Sign Out',
+                  cancelButtonText: 'Cancel',
+                  background: '#0d0d0f',
+                  color: '#ffffff'
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                  }
+                })
+              }
+            </script>
           </div>
         </div>
       @else

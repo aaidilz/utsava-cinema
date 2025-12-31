@@ -19,8 +19,7 @@
             berbagai anime populer dari berbagai genre.
           </p>
 
-          <a href="#"
-             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
+          <a href="#" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg
                     border border-[#8b7cf6] text-[#f2f1ff]
                     hover:bg-[#8b7cf6] hover:text-[#1f1a45] transition">
             Join Community
@@ -67,7 +66,7 @@
       <!-- BOTTOM -->
       <div class="flex flex-col md:flex-row justify-between gap-4 text-xs text-[#a3a0d9]">
         <p>
-          © {{ date('Y') }} Ustava Cinema. All rights reserved.
+          © {{ date('Y') }} Utsava Cinema. All rights reserved.
         </p>
         <p>
           Made with <span class="text-red-500">❤</span> for anime lovers

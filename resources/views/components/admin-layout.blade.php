@@ -13,16 +13,16 @@
 <body class="bg-linear-to-br from-[#6d5bd0] to-[#8b7cf6]">
   <div class="min-h-screen bg-[#2b235a] text-[#f2f1ff]">
     <!-- Top Navbar (Admin) -->
-    <header class="h-18 bg-[#1f1a45] px-6 flex items-center justify-between border-b border-white/10">
+    <header class="h-16 bg-[#1f1a45] px-4 md:px-6 flex items-center justify-between border-b border-white/10">
       <div class="flex items-center gap-4">
         <div class="text-lg font-bold tracking-wide">
           <a href="{{ route('dashboard') }}" class="hover:text-[#f2f1ff] transition-colors">Admin</a>
         </div>
-        <span class="text-xs text-[#c7c4f3] hidden sm:inline">Animetion Console</span>
+        <span class="text-xs text-[#c7c4f3] hidden sm:inline">Utsava Console</span>
       </div>
 
       <div class="flex items-center gap-3">
-        <a href="{{ route('home') }}" class="text-sm text-[#c7c4f3] hover:text-[#f2f1ff]">Kembali ke Home</a>
+        <a href="{{ route('home') }}" class="text-sm text-[#c7c4f3] hover:text-[#f2f1ff]">Back to Home</a>
 
         @auth
           @php
@@ -42,11 +42,31 @@
             </div>
           </div>
 
-          <form method="POST" action="{{ route('logout') }}" class="hidden sm:block">
+          <form id="logout-form-admin" method="POST" action="{{ route('logout') }}" class="hidden sm:block">
             @csrf
-            <button type="submit"
+            <button type="button" onclick="confirmLogoutAdmin(event)"
               class="text-sm px-3 py-2 rounded-lg bg-[#352c6a] hover:bg-white/5 text-[#f2f1ff]">Logout</button>
           </form>
+          <script>
+            function confirmLogoutAdmin(e) {
+              e.preventDefault();
+              Swal.fire({
+                title: 'Sign Out?',
+                text: "Return to the login screen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Logout',
+                background: '#1f1a45',
+                color: '#ffffff'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  document.getElementById('logout-form-admin').submit();
+                }
+              })
+            }
+          </script>
         @endauth
       </div>
     </header>
@@ -79,7 +99,7 @@
         </nav>
 
         <div class="p-4 border-t border-white/10 text-xs text-[#c7c4f3]">
-          © {{ date('Y') }} Animetion
+          © {{ date('Y') }} Utsava Cinema
         </div>
       </aside>
 

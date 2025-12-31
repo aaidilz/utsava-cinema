@@ -12,7 +12,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="space-y-2">
-                        <label class="text-sm font-medium text-[#c7c4f3]">Nama Lengkap</label>
+                        <label class="text-sm font-medium text-[#c7c4f3]">Full Name</label>
                         <input type="text" name="name" value="{{ old('name', $user->name) }}"
                             class="w-full bg-[#2b235a] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#8b7cf6]">
                         @error('name') <span class="text-red-400 text-xs">{{ $message }}</span> @enderror
